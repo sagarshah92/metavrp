@@ -12,6 +12,8 @@ import org.metavrp.VRP.CostMatrix;
  */
 public class VRPGARun {
     
+    private Population pop;
+    
     public VRPGARun(GAParameters params, GeneList geneList, CostMatrix costMatrix){
         
         int popSize = params.getPopSize();
@@ -24,7 +26,7 @@ public class VRPGARun {
         long start = System.currentTimeMillis();
         
         // Create Population
-        Population pop = new Population(popSize, geneList, costMatrix);
+        pop = new Population(popSize, geneList, costMatrix);
         
         // Some statistics
         float startBest = pop.getBestFitness();
@@ -76,8 +78,8 @@ public class VRPGARun {
 
         //System.out.println("Filhos: "+childs.hashCode());
     //                    childs = Crossover.crossoverPMX(parents,crossoverProb,costMatrix);
-                        childs = Edge3.Edge3(parents,crossoverProb);
-//                        childs = Order1.Order1(parents,crossoverProb);
+//                        childs = Edge3.Edge3(parents,crossoverProb);
+                        childs = Order1.Order1(parents,crossoverProb);
 
                         childs[0]=Mutation.swapMutation(mutationProb, childs[0]);
                         childs[1]=Mutation.swapMutation(mutationProb, childs[1]);
@@ -108,7 +110,6 @@ public class VRPGARun {
     }
     
     
-   
     // Prints some statistics about population
     public static void printPopulationStatistics(Population pop, int generation, long time){
         System.out.println("\nGeneration: "+generation);
@@ -116,6 +117,10 @@ public class VRPGARun {
         System.out.println("Average cost value: "+pop.getAverageFitness());
         System.out.println("Worst cost value: "+pop.getWorstFitness());
         System.out.println("Time spent on this generation: "+time+"ms\n\n");
+    }
+    
+    public Population getPopulation(){
+        return pop;
     }
     
 }

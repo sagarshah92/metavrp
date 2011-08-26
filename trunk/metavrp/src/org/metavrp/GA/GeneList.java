@@ -42,31 +42,6 @@ public class GeneList {
         this.nrNodes=nodes.size();
         this.nrVehicles=vehicles.size();
     }
-    
-    
-    // Constructor. 
-    // Given some number of nodes and of vehicles, creates a simple list of genes.
-    // This is a very simplified (and useless?) constructor, as all the vehicles start from node 0
-    // TODO: remove this useless constructor.
-    public GeneList(int nrVehicles, int nrNodes){
-        genes = new ArrayList<Gene>(nrVehicles+nrNodes);
-        
-        // Add the nodes
-        for (int i=1;i<nrNodes;i++){
-            genes.add(new Customer(i,i));
-        }
-        
-        this.indexFirstVehicle=genes.size();
-        
-        // Add the vehicles
-        // All of them start from the first node
-        for (int i=0;i<nrVehicles;i++){
-            genes.add(new Vehicle(-1-i,0));
-        }
-        
-        this.nrNodes=nrNodes;
-        this.nrVehicles=nrVehicles;
-    }
 
     
     /* ------------------- */
@@ -93,5 +68,11 @@ public class GeneList {
         return nrVehicles;
     }
     
+    public int getSize(){
+        int size = getNrNodes() + getNrVehicles();
+        if (size != genes.size()) 
+            throw new AssertionError("[ERROR] on GeneList: nº of customers + nº of vehicles != size of the genes");
+        return size;
+    }
     
 }
