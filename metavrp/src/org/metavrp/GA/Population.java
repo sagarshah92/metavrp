@@ -253,7 +253,7 @@ public class Population implements Cloneable, Comparator<Chromosome>{
     public Chromosome[] getChromosomes() {
         return chromosomes;
     }
-
+    
     public float getAverageFitness() {
         return averageFitness;
     }

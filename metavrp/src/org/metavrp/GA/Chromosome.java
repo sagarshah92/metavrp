@@ -63,7 +63,7 @@ public void verificarGenes(){
     if (!genesList.isEmpty()){
         throw new AssertionError("Está um gene a mais!");
     }
-    if (costMatrix.getSize()!=genes.length-1)
+    if (costMatrix.getSize()!=genes.length-nrVehicles+1)
         throw new AssertionError("Faltam genes no cromosoma!");
 }
     
@@ -75,7 +75,7 @@ public void verificarGenes(){
         // Cloned because we want to make changes without destroying the original list.
         ArrayList<Gene> temp_chr = geneList.getClonedGenes();
         
-        int size = geneList.getGenes().size();  // Get the size of the list
+        int size = geneList.getSize();  // Get the size of the list
         
         // Now scramble those genes (with the vehicles)
         ArrayList<Gene> random_chr = new ArrayList(size);   // Array to store the newly created chromosome
