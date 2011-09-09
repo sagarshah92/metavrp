@@ -10,23 +10,41 @@ import org.metavrp.VRP.CostMatrix;
  *
  * @author David Pinheiro
  */
-public class VRPGARun {
+// TODO: if generations=0 never stop running
+public class VRPGARun implements Runnable{
     
-    private Population pop;
+    private Population pop;         // Current population
+    
+    private int popSize;            // Size of the population
+    private float mutationProb;     // Probability of mutation (0..1)
+    private float crossoverProb;    // Probability of crossover (0..1)
+    private int generations;        // Number of generations to run. 
+    private float elitism;          // Use of elitism from 0 (no elitism) to 1 
+                                    // (every chromosome on the new population comes from the old one)    
+    private GeneList geneList;      // Object with the genes (vehicles and customers)
+    private CostMatrix costMatrix;  // Object with the costs between nodes
+    
     
     public VRPGARun(GAParameters params, GeneList geneList, CostMatrix costMatrix){
         
-        int popSize = params.getPopSize();
-        float elitism = params.getElitism();
-        float mutationProb = params.getMutationProb();
-        float crossoverProb= params.getCrossoverProb();
-        int generations = params.getGenerations();
+        this.popSize = params.getPopSize();
+        this.elitism = params.getElitism();
+        this.mutationProb = params.getMutationProb();
+        this.crossoverProb= params.getCrossoverProb();
+        this.generations = params.getGenerations();
         
-        int generation=0;
-        long start = System.currentTimeMillis();
+        this.geneList = geneList;
+        this.costMatrix = costMatrix;
         
         // Create Population
         pop = new Population(popSize, geneList, costMatrix);
+    }
+
+    @Override
+    public void run (){
+        
+        int generation=0;
+        long start = System.currentTimeMillis();
         
         // Some statistics
         float startBest = pop.getBestFitness();
