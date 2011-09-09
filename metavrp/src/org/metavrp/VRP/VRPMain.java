@@ -39,6 +39,10 @@ public class VRPMain {
 
         VRPGARun run = new VRPGARun(params, geneList, costMatrix);
 
+        // Start in a new thread
+        Thread vrpThread = new Thread(run, "metaVRP");
+        vrpThread.start();
+
     }
     
     
