@@ -194,27 +194,39 @@ public class Population implements Cloneable, Comparator<Chromosome>{
 
     }
     
-   
-    // TODO: Eliminar isto
-    // Auxiliary methods
-    //
-/*    public String toSting() {
-        String temp = "";
-        for (int i = 0; i < chromosomes.size(); i++) {
-            temp = temp + Integer.toString(i) + " : " + chromosomes.get(i).toString() + "\n";
-        }
-        return temp;
+    /*
+     * Measure improvements
+     * 
+     * Get the corresponding fitness value of the given population.
+     * Measure it's improvement as the ratio between:
+     * ( given corresponding fitness value - current corresponding fitness value ) / given corresponding fitness value
+     */
+    
+    // Measure the improvement of the best fitness value
+    public float calcBestImprovement(Population givenPop) {
+        float givenBestFitness = givenPop.getBestFitness(); 
+        float ratio = (givenBestFitness-bestFitness) / givenBestFitness;
+        return ratio;
     }
-*/
-/*    public void print() {
-        for (int i = 0; i
-                < chromosomes.size(); i++) {
-            System.out.println(i + chromosomes.get(i).toString());
-        }
+    
+    // Measure the improvement of the average fitness value
+    public float calcAverageImprovement(Population givenPop) {
+        float givenAverageFitness = givenPop.getAverageFitness(); 
+        float ratio = (givenAverageFitness-averageFitness) / givenAverageFitness;
+        return ratio;
     }
-*/
 
+    // Measure the improvement of the worst fitness value
+    public float calcWorstImprovement(Population givenPop) {
+        float givenWorstFitness = givenPop.getWorstFitness(); 
+        float ratio = (givenWorstFitness-worstFitness) / givenWorstFitness;
+        return ratio;
+    } 
+    
 
+    /*
+     * Support Functions
+     */
     // We need to implement this method for sorting
     @Override
     public int compare(Chromosome chr1, Chromosome chr2) {
@@ -223,7 +235,7 @@ public class Population implements Cloneable, Comparator<Chromosome>{
     
     // Clone method
     @Override
-    protected Object clone() throws CloneNotSupportedException {
+    public Object clone() throws CloneNotSupportedException {
 
         Chromosome[] newChromosomes = new Chromosome[popSize()];
         for (int i=0;i<popSize();i++){
@@ -233,21 +245,14 @@ public class Population implements Cloneable, Comparator<Chromosome>{
         
         return newPop;
     }
-
-        
+    
+  
     //***************************
     // TODO: Getters and Setters
     //***************************
 
     public int popSize(){
         return chromosomes.length;
-    }
-
-    public float getmin() {
-        return this.worstFitness;
-    }
-    public float getavg() {
-        return this.averageFitness;
     }
 
     public Chromosome[] getChromosomes() {

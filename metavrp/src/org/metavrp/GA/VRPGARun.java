@@ -14,6 +14,7 @@ import org.metavrp.VRP.CostMatrix;
 public class VRPGARun implements Runnable{
     
     private Population pop;         // Current population
+    private static Population firstPop;    // The first population, the one that was created randomly
     
     private int popSize;            // Size of the population
     private float mutationProb;     // Probability of mutation (0..1)
@@ -24,6 +25,8 @@ public class VRPGARun implements Runnable{
     private GeneList geneList;      // Object with the genes (vehicles and customers)
     private CostMatrix costMatrix;  // Object with the costs between nodes
     
+    private int generation=0;       // The current generation's number
+
     
     public VRPGARun(GAParameters params, GeneList geneList, CostMatrix costMatrix){
         
@@ -38,12 +41,18 @@ public class VRPGARun implements Runnable{
         
         // Create Population
         pop = new Population(popSize, geneList, costMatrix);
+        
+        // Copy the first population
+        try{
+            firstPop = (Population)pop.clone();
+        } catch (CloneNotSupportedException ex){
+            ex.printStackTrace();
+        }
     }
 
     @Override
     public void run (){
         
-        int generation=0;
         long start = System.currentTimeMillis();
         
         // Some statistics
@@ -132,13 +141,30 @@ public class VRPGARun implements Runnable{
     public static void printPopulationStatistics(Population pop, int generation, long time){
         System.out.println("\nGeneration: "+generation);
         System.out.println("Best cost value: "+pop.getBestFitness());
+        System.out.println("Best cost improvement: "+pop.calcBestImprovement(firstPop)*100 + " %");
         System.out.println("Average cost value: "+pop.getAverageFitness());
+        System.out.println("Average cost improvement: "+pop.calcAverageImprovement(firstPop)*100 + " %");
         System.out.println("Worst cost value: "+pop.getWorstFitness());
+        System.out.println("Worst cost improvement: "+pop.calcWorstImprovement(firstPop)*100 + " %");
         System.out.println("Time spent on this generation: "+time+"ms\n\n");
     }
     
+    /*
+     * Getters and Setters
+     */
+    // Return the current population
     public Population getPopulation(){
         return pop;
+    }
+    
+    // Return the first population
+    public Population getFirstPopulation(){
+        return firstPop;
+    }
+
+    // Return the generation number
+    public int getGeneration(){
+        return this.generation;
     }
     
 }
