@@ -18,26 +18,26 @@ public class Customer implements Gene, Cloneable {
    // The ID of the customer. 
    // This ID is positive or zero for customers and negative for vehicles.
    private int id;
-    
+   
    // Node number
    // TODO: shouldn't this field be removed? And the ID used instead? From the class Vehicle too.
    private int node;
    
-   // What's this customer's goods size, that need to be transported? It's measure (size, volume, quantity, etc...)
-   private float size;
+   // What's this customer's goods demand, that need to be transported? It's measure (size, volume, quantity, etc...)
+   private float demand;
 
    // Constructs a Customer with infinite capacity. 
     public Customer (int id, int node){
         this.id=id;
         this.node=node;
-        this.size=Float.MAX_VALUE;
+        this.demand=0;
     }
     
     // Constructs a Customer with capacity
-    public Customer (int id, int v, float size){
+    public Customer (int id, int v, float demand){
         this.id=id;
         this.node=v;
-        this.size=size;
+        this.demand=demand;
     }
 
     /* ------------------- */
@@ -58,14 +58,24 @@ public class Customer implements Gene, Cloneable {
     public boolean getIsVehicle(){
         return false;
     }
-    
-    public void setSize(float size){
-        this.size=size;
+
+    public float getDemand() {
+        return demand;
     }
 
+    public void setDemand(float demand) {
+        this.demand = demand;
+    }
+    
+    // The same as setDemand
+    public void setSize(float size){
+        setDemand(size);
+    }
+
+    // The same as getDemand
     @Override
     public float getSize(){
-        return this.size;
+        return getDemand();
     }
     
     // Transform the node's value into a string
@@ -86,7 +96,7 @@ public class Customer implements Gene, Cloneable {
     public Customer clone(){
         int clonedId = this.id;
         int clonedNode = this.node;
-        float clonedSize = this.size;
+        float clonedSize = this.demand;
         
         Customer newCustomer = new Customer (clonedId, clonedNode, clonedSize);
 
