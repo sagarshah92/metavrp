@@ -1,6 +1,7 @@
 
 package org.metavrp.VRP;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import org.metavrp.GA.support.*;
@@ -26,10 +27,11 @@ public class VRPMain {
         float elitism=0.01f;
         float mutationProb=0.1f;
         float crossoverProb=0.8f;
-        int generations=500;
+        int generations=1000000;
         
-        String fileName = "c:/vrp-tsp/dm171.txt";
-        
+        File file = new File("dist\\instances\\vrp\\dm171.txt");  
+        String fileName = file.getAbsolutePath();
+System.out.println(fileName);        
         CostMatrix costMatrix = new CostMatrix(fileName, false);
         
         // Create the Gene List
