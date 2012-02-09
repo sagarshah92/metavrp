@@ -229,9 +229,11 @@ if (count!=1){ System.out.println("O cromosoma: " + this.print()+ "Tem "+count+"
     
     // Verifies if this chromosome has a specified Gene
     public boolean hasGene(Gene g){
-        for (int i = 0; i < this.getLenght(); i++) {
+        for (int i = 0; i < genes.length; i++) {
             if (genes[i]!=null){
-                if (((Object)genes[i]).equals(g)){
+//TODO: remove this. Is very slow.                
+//if (((Object)genes[i]).equals(g)){
+                if (genes[i]==g){
                     return true;
                 }
             } else if (genes[i]==null && g==null){

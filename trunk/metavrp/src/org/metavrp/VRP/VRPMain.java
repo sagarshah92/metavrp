@@ -22,12 +22,12 @@ public class VRPMain {
      */
     public static void main(String[] args) {
         
-        int popSize=1000;
+        int popSize=100;
         int nrVehicles=1;
         float elitism=0.01f;
         float mutationProb=0.1f;
         float crossoverProb=0.8f;
-        int generations=1000000;
+        int generations=2000;
         
         File file = new File("instances\\vrp\\dm171.txt");  
         String fileName = file.getAbsolutePath();
