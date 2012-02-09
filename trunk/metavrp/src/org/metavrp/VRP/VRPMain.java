@@ -29,7 +29,7 @@ public class VRPMain {
         float crossoverProb=0.8f;
         int generations=1000000;
         
-        File file = new File("dist\\instances\\vrp\\dm171.txt");  
+        File file = new File("instances\\vrp\\dm171.txt");  
         String fileName = file.getAbsolutePath();
 System.out.println(fileName);        
         CostMatrix costMatrix = new CostMatrix(fileName, false);
