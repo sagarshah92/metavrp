@@ -118,7 +118,7 @@ if (count!=1){ System.out.println("O cromosoma: " + this.print()+ "Tem "+count+"
         float[] vFitness = new float[nVehicles];    // The fitness (routing cost) of the vehicles
         int vehicle=0;                              // The number of the vehicle
         
-        int indexFirstVehicle = indexFirstVehicle(genes);
+        int indexFirstVehicle = indexFirstVehicle();
         int currentNode=indexFirstVehicle;
         int nextNode=indexFirstVehicle+1;
         
@@ -218,7 +218,7 @@ if (count!=1){ System.out.println("O cromosoma: " + this.print()+ "Tem "+count+"
     }
     
     // Finds the index of the first vehicle
-    public int indexFirstVehicle(Gene[] genes){
+    public int indexFirstVehicle(){
         for (int i=0; i<genes.length;i++){
             if (genes[i].getIsVehicle()){
                 return i;

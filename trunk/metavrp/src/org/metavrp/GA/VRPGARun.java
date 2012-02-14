@@ -4,6 +4,7 @@ package org.metavrp.GA;
 import org.metavrp.GA.support.GAParameters;
 import org.metavrp.GA.operators.*;
 import org.metavrp.GA.operators.crossover.*;
+import org.metavrp.GA.support.Tours;
 import org.metavrp.VRP.CostMatrix;
 
 /**
