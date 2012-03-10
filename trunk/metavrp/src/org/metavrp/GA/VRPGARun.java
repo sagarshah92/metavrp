@@ -4,6 +4,10 @@ package org.metavrp.GA;
 import org.metavrp.GA.support.GAParameters;
 import org.metavrp.GA.operators.*;
 import org.metavrp.GA.operators.crossover.*;
+import org.metavrp.GA.operators.mutation.InsertMutation;
+import org.metavrp.GA.operators.mutation.InversionMutation;
+import org.metavrp.GA.operators.mutation.SwapMutation;
+import org.metavrp.GA.operators.mutation.SwapNextMutation;
 import org.metavrp.GA.support.Tours;
 import org.metavrp.VRP.CostMatrix;
 
@@ -109,8 +113,8 @@ public class VRPGARun implements Runnable{
 //                        childs = Edge3.Edge3(parents,crossoverProb);
                         childs = Order1.Order1(parents,crossoverProb);
 
-                        childs[0]=Mutation.swapMutation(mutationProb, childs[0]);
-                        childs[1]=Mutation.swapMutation(mutationProb, childs[1]);
+                        childs[0]=SwapNextMutation.swapNextMutation(mutationProb, childs[0]);
+                        childs[1]=SwapNextMutation.swapNextMutation(mutationProb, childs[1]);
 
     //    System.out.println("Filho 0: "+childs[0].toString()); 
     //    System.out.println("Filho 1: "+childs[1].toString()); 

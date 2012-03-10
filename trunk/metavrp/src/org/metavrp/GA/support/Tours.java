@@ -11,7 +11,7 @@ import org.metavrp.VRP.Vehicle;
 
 /**
  *
- * @author David
+ * @author David Pinheiro
  */
 public class Tours {
     

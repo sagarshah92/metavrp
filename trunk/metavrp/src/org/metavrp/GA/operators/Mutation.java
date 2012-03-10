@@ -9,7 +9,7 @@ import java.util.Arrays;
  * Mutation Operators
  * *******************
  * 
- * TODO: Insert Mutation, Scramble Mutation, others...
+ * TODO: Insert Mutation, Swap Mutation, Inversion Mutaion, ...
  * 
  * @author David Pinheiro
  */
@@ -83,7 +83,7 @@ public class Mutation {
     // Preserves most of adjacency information (2 links broken) but disrupts the order.
     // If the probability is higher than 1 we swap more than once.
     // TODO: Verificar se este método está a funcionar bem.
-    public static Chromosome mutation_inversion(float probability, Chromosome genes) {
+    public static Chromosome inversionMutation(float probability, Chromosome genes) {
         //We can use a probability higher than 1 to enable more than 1 swaping operation
 //        if (probability > 1){
 //            System.out.println("[Warning] The inversion mutation probability is higher than 1. "
@@ -117,5 +117,8 @@ public class Mutation {
         // Return the modified chromosome
         return genes;
     }
+    
+    
+    //TODO: Adicionar Insert Mutation. Ver Eiben
     
 }

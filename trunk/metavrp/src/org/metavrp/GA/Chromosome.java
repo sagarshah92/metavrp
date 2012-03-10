@@ -13,16 +13,17 @@ import java.util.*;
  */
 public class Chromosome implements Cloneable, Comparable<Chromosome>{
 
-    private int nrVehicles;             // The number of vehicles in the chromosome
-    private int nrNodes;                // The number of nodes not vehicles
+    private int nrVehicles;                     // The number of vehicles in the chromosome
+    private int nrNodes;                        // The number of nodes not vehicles
     
-    private CostMatrix costMatrix;   // Bi-dimentional array with the distances between any two nodes
+    private CostMatrix costMatrix;              // Bi-dimentional array with the distances between any two nodes
 
-    private Gene[] genes;               // The actual chromosome: an Array of genes
+    private Gene[] genes;                       // The actual chromosome: an Array of genes
 
-    private float fitness;              // Chromosome's fitness value (Corresponds to the total cost)
+    private float fitness;                      // Chromosome's fitness value (Corresponds to the total cost)
+    private boolean isFitnessOutdated = false;  // True if we need to reevaluate the fitness of this chromosome
 
-    private float[] vehiclesFitness;    // Fitness of the vehicles
+    private float[] vehiclesFitness;            // Fitness of the vehicles
     
     
     // Constructor.
@@ -188,7 +189,7 @@ if (count!=1){ System.out.println("O cromosoma: " + this.print()+ "Tem "+count+"
     
     // Swaps two genes, defined by positions 'a' and 'b'
     public void swapGenes(int a, int b){
-        if (a > genes.length || b > genes.length){
+        if (a<0 || b<0 || a > genes.length || b > genes.length){
             throw new AssertionError("[ERROR] Cannot swap genes because one of them is out of the chromosome!");
         }
         Gene gene1 = genes[a];
@@ -199,15 +200,43 @@ if (count!=1){ System.out.println("O cromosoma: " + this.print()+ "Tem "+count+"
     
     // Swaps two given genes
     public void swapGenes(Gene a, Gene b){
-//System.out.println("Cromossoma antes do swapping: "+this.print());
+//TODO: remove this
+//System.out.println("Cromossoma antes do swap: "+this.print());
         int indexA=this.indexOf(a); //Find their indexes
         int indexB=this.indexOf(b);
-        this.setGene(b, indexA);    //Swap them using the indexes
+        // If one of the indexes is -1, that gene doesn't exist on the chromosome
+        if (indexA==-1){
+            throw new AssertionError("[ERROR] The gene "+a.toString()+" doesn't exist on the chromosome "+this.toString());
+        }
+        if (indexB==-1){
+            throw new AssertionError("[ERROR] The gene "+b.toString()+" doesn't exist on the chromosome "+this.toString());
+        }
+        
+        this.setGene(b, indexA);    // Swap them using the indexes
         this.setGene(a, indexB);
-//System.out.println("Cromossoma após o swapping: "+this.print());
+//TODO: remove this
+//System.out.println("Cromossoma após o swap: "+this.print());
     }
     
-    // Find the index of the given gene
+    // Swaps a given gene with the next one
+    public void swapWithNextGene(Gene gene){
+        int indexGene=this.indexOf(gene); //Find his index
+        
+        if (indexGene==-1){     
+            // If the index is -1, the gene doesn't exist on the chromosome
+            throw new AssertionError("[ERROR] The gene "+gene.toString()+" doesn't exist on the chromosome "+this.toString());
+        }
+        
+        if (indexGene==this.getLenght()-1){ 
+            // If this gene is the last one, swap it with the first one
+            swapGenes(indexGene,0);
+        } else {    
+            // Otherwise swap it with the next one
+            swapGenes(indexGene,indexGene+1);
+        }
+    }
+    
+    // Finds the index of the given gene
     public int indexOf(Gene g) {
         int index = -1;
         for (int i = 0; i < this.getLenght(); i++) {
@@ -357,6 +386,9 @@ if (count!=1){ System.out.println("O cromosoma: " + this.print()+ "Tem "+count+"
     public void setGene(Gene g, int i){
 //System.out.println("Set gene: "+g.print());        
         this.genes[i]=g;
+        
+        // With some change of the genes, the fitness value is outdated and needs to be evaluated again
+        isFitnessOutdated=true; 
 //System.out.println("To: "+this.genes[i].print());        
     } 
     

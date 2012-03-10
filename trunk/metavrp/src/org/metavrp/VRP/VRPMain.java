@@ -22,14 +22,15 @@ public class VRPMain {
      */
     public static void main(String[] args) {
         
-        int popSize=100;
+        int popSize=1000;
         int nrVehicles=1;
         float elitism=0.01f;
-        float mutationProb=0.1f;
+        float mutationProb=0.01f;
         float crossoverProb=0.8f;
-        int generations=2000;
+        int generations=500;
         
         File file = new File("instances\\vrp\\dm171.txt");  
+//        File file = new File("instances\\vrp\\dm7.txt");  
         String fileName = file.getAbsolutePath();
 System.out.println(fileName);        
         CostMatrix costMatrix = new CostMatrix(fileName, false);
