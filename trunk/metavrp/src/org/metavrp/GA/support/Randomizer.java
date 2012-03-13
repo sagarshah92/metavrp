@@ -15,14 +15,16 @@ import java.util.ArrayList;
  */
 public class Randomizer {
     
+    static final Random randomGenerator = new Random();
+    
     // Should something be done, based on some probability?
     public static boolean doIt(float probability){
-        Random randomGenerator = new Random();
+        //Random randomGenerator = new Random();
         float randomFloat=randomGenerator.nextFloat();
-        // Returns true if randomFloat <= probability. False otherwise.
-        return  (randomFloat <= probability);
+        // Returns true if randomFloat < probability. False otherwise.
+        return  (randomFloat < probability);
     }
-    
+   
     // Returns a random int between 0 (inclusive) and a given max value (exclusive)
     public static int randomInt(int max){
         Random randomGenerator = new Random();
