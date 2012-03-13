@@ -1,6 +1,7 @@
 
 package org.metavrp.GA;
 
+import java.util.Random;
 import org.metavrp.GA.support.GAParameters;
 import org.metavrp.GA.operators.*;
 import org.metavrp.GA.operators.crossover.*;
@@ -88,7 +89,7 @@ public class VRPGARun implements Runnable{
                     // we just do selection and mutation
                     if ((i+2)>popSize){
                         Chromosome parent = Selection.tournamentSelection(2,newPop);
-                        Chromosome child = Mutation.swapMutation(mutationProb, parent);
+                        Chromosome child = SwapNextMutation.swapNextMutation(mutationProb, parent);
                         tmpPop[i] = child;
                     }
                     
