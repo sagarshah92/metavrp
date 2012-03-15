@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.metavrp.GA.operators.crossover;
+package org.metavrp.trash;
 
 import org.metavrp.GA.Chromosome;
 import org.metavrp.GA.Gene;
@@ -33,8 +33,8 @@ public class Edge3_2 {
             System.out.println("[WARNING] Tried to crossover more than two parents with PMX.");
             System.out.println("[WARNING] Only the first two chromosomes will be used.");
         }
-parents[0].verificarGenes();
-parents[1].verificarGenes();
+parents[0].verifyGenes();
+parents[1].verifyGenes();
 //System.out.println("Pai:"+parents[0].print());        
 //System.out.println("Mae:"+parents[1].print());             
         // 1. Construct Edge Table
