@@ -110,9 +110,9 @@ public class VRPGARun implements Runnable{
 //                        childs[1]=parents[1];
 
         //System.out.println("Filhos: "+childs.hashCode());
-    //                    childs = Crossover.crossoverPMX(parents,crossoverProb,costMatrix);
-//                        childs = Edge3.Edge3(parents,crossoverProb);
-                        childs = Order1.Order1(parents,crossoverProb);
+//                        childs = PMX.PMX(parents,crossoverProb);
+                        childs = Edge3.Edge3(parents,crossoverProb);
+//                        childs = Order1.Order1(parents,crossoverProb);
 
                         childs[0]=SwapNextMutation.swapNextMutation(mutationProb, childs[0]);
                         childs[1]=SwapNextMutation.swapNextMutation(mutationProb, childs[1]);

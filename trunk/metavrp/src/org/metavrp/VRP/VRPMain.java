@@ -22,7 +22,7 @@ public class VRPMain {
      */
     public static void main(String[] args) {
         
-        int popSize=1000;
+        int popSize=200;
         int nrVehicles=1;
         float elitism=0.01f;
         float mutationProb=0.01f;

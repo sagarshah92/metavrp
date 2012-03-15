@@ -1,32 +1,23 @@
-package org.metavrp.GA.operators.crossover;
+package org.metavrp.trash;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import org.metavrp.GA.Chromosome;
 import org.metavrp.GA.Gene;
 import org.metavrp.GA.support.Randomizer;
 
-/*********************
- * PMX (Partially Mapped Crossover)
- * *******************
- * For a description look at:
- * 
- * D. Whitley. "Permutations", in T. Bäck, D. Fogel, Z. Michalewicz. "Evolutionary Computation 1: 
- * Basic Algorithms and Operators", Institute of Physics Publishing, 2000, Cap. 33.3, Pag 275-276
- * 
- * or
- * 
- * A. Eiben, J. Smith. "Introduction to Evolutionary Computing", Springer-Verlag, 2003, pag 52-54
- * 
+/**
+ *
  * @author David Pinheiro
  */
-public class PMX {
+public class PMX_with_bugs {
     
     /*
      * PMX Crossover.
      * Returns, with some given probability, two chromosomes (the childs) as the
      * crossover between parents.
+     * 
+     * @author David Pinheiro
      */
+
     public static Chromosome[] PMX (Chromosome[] parents, float probability){
         
         // Warning of out of scope probability
@@ -71,8 +62,11 @@ public class PMX {
             child1.setGene(null, i);
             child2.setGene(null, i);
         }
-
         
+System.out.println("Parent 1: "+parent1.print());
+System.out.println("Parent 2: "+parent2.print());
+System.out.println("Ponto 1: "+crossoverPoints[0]+"\nPonto 2: "+secondPoint);
+
         // 2. Copy the segment between the crossover points from the parent1 to the child1
         
         // All genes between the crossover points are directly copied to the childs
@@ -112,11 +106,9 @@ public class PMX {
                     // in child1, by an element k, put i in the position occupied by k in Parent2.
                     int indexP2k = parent2.indexOf(geneP2j);
                     
-                    // There's a bug in the original algorithm.
-                    // Here we have to verify that the child has no gene on this position.
-                    if (child1.getGene(indexP2k) == null){
+                    // Here's a bug in the original algorithm.
+                    // First we need to verify that the child has no gene on this position.
                         child1.setGene(geneParent2, indexP2k);
-                    }
                     
                 }
             }
@@ -130,7 +122,7 @@ public class PMX {
                     child2.setGene(geneParent1, indexP1j);
                 } else {
                     int indexP1k = parent1.indexOf(geneP1j);
-                    if (child2.getGene(indexP1k) == null){
+                    if (child2.getGene(indexP1k) != null){
                         child2.setGene(geneParent1, indexP1k);
                     }
                 }
@@ -138,47 +130,18 @@ public class PMX {
         }
         
         // 7. The remaining elements are placed by directly copying their positions from Parent2.
-        // This is another bug on the original definition. We can't directly copy the genes 
-        // from Parent2 into the empty slots of Child1.
-        // We need to verify which are the genes in Parent2 that don't exist in Child1 and copy them.
-        
-        // 7.1 Transform the arrays in lists, for easy element removal
-        ArrayList<Gene> parent2List = new ArrayList<Gene>(Arrays.asList(parent2.getGenes()));
-        ArrayList<Gene> parent1List = new ArrayList<Gene>(Arrays.asList(parent1.getGenes()));
-        
-        // 7.2 Define a storage to put the indexes of the null elements in Child1
-        ArrayList<Integer> emptyChild1 = new ArrayList<Integer>();
-        ArrayList<Integer> emptyChild2 = new ArrayList<Integer>();
-        
-        // 7.3 For each element in Child1, if it is null, put his index in emptyChild1,
-        // otherwise remove the element from Parent2List.
-        for (int i=0; i<child1.getLenght();i++){
-            Gene tempGene = child1.getGene(i);
-            if (tempGene == null){
-                emptyChild1.add(i);
-            } else {
-                parent2List.remove(tempGene);
+        for (int i=0; i<child1.getLenght(); i++){
+            if (child1.getGene(i)==null){
+                child1.setGene(parent2.getGene(i),i);
             }
-        }
-        for (int i=0; i<child2.getLenght();i++){
-            Gene tempGene = child2.getGene(i);
-            if (tempGene == null){
-                emptyChild2.add(i);
-            } else {
-                parent1List.remove(tempGene);
+            if (child2.getGene(i)==null){
+                child2.setGene(parent1.getGene(i),i);
             }
         }
         
-        // 7.4 Now put every gene (that was left) from parent2List in the empty places
-        // of child1 (their indexes are on emptyChild1).
-        for (int i:emptyChild1){
-            child1.setGene(parent2List.remove(0), i);
-        }
-        for (int i:emptyChild2){
-            child2.setGene(parent1List.remove(0), i);
-        }
+System.out.println("Child 1:"+child1.print());
+System.out.println("Child 2:"+child2.print());
         
-        // TODO: Remove/Comment this!
         child1.verifyGenes();
         child2.verifyGenes();
         
@@ -187,4 +150,5 @@ public class PMX {
         
         return childs;
     }
+
 }

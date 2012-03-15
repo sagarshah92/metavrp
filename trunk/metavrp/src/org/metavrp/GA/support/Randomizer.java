@@ -27,14 +27,12 @@ public class Randomizer {
    
     // Returns a random int between 0 (inclusive) and a given max value (exclusive)
     public static int randomInt(int max){
-        Random randomGenerator = new Random();
         // Returns a randomly generated int
         return randomGenerator.nextInt(max);
     }
     
     // Returns a random float between 0.0f (inclusive) to 1.0f (exclusive)
     public static float randomFloat(){
-        Random randomGenerator = new Random();
         // Returns a randomly generated int
         return randomGenerator.nextFloat();
     }

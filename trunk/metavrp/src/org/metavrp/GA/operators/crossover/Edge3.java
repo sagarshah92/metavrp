@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.metavrp.GA.operators.crossover;
 
 import org.metavrp.GA.Chromosome;
@@ -9,18 +5,23 @@ import org.metavrp.GA.Gene;
 import org.metavrp.GA.support.Randomizer;
 
 import java.util.*;
-/**
- *
+/******************************************
+ * Edge Crossover, version 3 by D. Whitley
+ * ****************************************
+ * For a description look at:
+ * 
+ * D. Whitley. "Permutations", in T. Bäck, D. Fogel, Z. Michalewicz. "Evolutionary Computation 1: 
+ * Basic Algorithms and Operators", Institute of Physics Publishing, 2000, Cap. 33.3, Pag 278-280
+ * 
+ * or
+ * 
+ * A. Eiben, J. Smith. "Introduction to Evolutionary Computing", Springer-Verlag, 2003, pag 54-56
+ * 
  * @author David Pinheiro
  */
 public class Edge3 {
     
     public static Chromosome[] Edge3 (Chromosome[] parents, float probability){
-        // Should we do the crossover, based on the given probability? 
-        // If not just return the parents.
-        if (!Randomizer.doIt(probability)){
-            return parents;
-        }
         
         // Warning of out of scope probability
         if (probability < 0 || probability >1){
@@ -32,9 +33,15 @@ public class Edge3 {
             System.out.println("[WARNING] Tried to crossover more than two parents with Edge3.");
             System.out.println("[WARNING] Only the first two chromosomes will be used.");
         }
-System.out.println("Pai:"+parents[0].print());        
-System.out.println("Mae:"+parents[1].print());             
+        
+        // Should we do the crossover, based on the given probability? 
+        // If not just return the parents.
+        if (!Randomizer.doIt(probability)){
+            return parents;
+        }
+
         // 1. Construct Edge Table
+        // TODO: The two tables are equal. We can just clone the first one on the second.
         HashMap edgeTable1 = buildEdgeTable(parents[0],parents[1]);
         HashMap edgeTable2 = buildEdgeTable(parents[1],parents[0]);
         
@@ -48,7 +55,7 @@ System.out.println("Mae:"+parents[1].print());
         child1[0]=currentElement1;
         Gene currentElement2 = parents[1].getGene(Randomizer.randomInt(size));
         child2[0]=currentElement2;
-
+        
         // Keep filling the child chromosome
         for (int i=1; i<size; i++){
 
@@ -67,47 +74,34 @@ System.out.println("Mae:"+parents[1].print());
         Chromosome[] childs = new Chromosome[2];
         childs[0] = new Chromosome(child1, parents[0].getCostMatrix());
         childs[1] = new Chromosome(child2, parents[0].getCostMatrix());
-   
-System.out.println("Filho:"+childs[0].print());
-System.out.println("Filho:"+childs[1].print());
+
+        // Verify if the genes are correctly created
+        childs[0].verifyGenes();
+        childs[1].verifyGenes();
         
         return childs;
     }
     
     // Construct Edge Table
-    public static HashMap buildEdgeTable(Chromosome chr1, Chromosome chr2){
-        if (chr1.getLenght()!=chr2.getLenght())
+    public static HashMap buildEdgeTable(Chromosome P1, Chromosome P2){
+        if (P1.getLenght()!=P2.getLenght())
             throw new AssertionError("ERROR: The Chromosomes have different lenght!");
 
         // Constructs a HashMap of initial size n*n
-        HashMap<Gene,ArrayList<Gene>> edgeTable = new HashMap<Gene,ArrayList<Gene>>(chr1.getLenght()*chr1.getLenght());
+        HashMap<Gene,ArrayList<Gene>> edgeTable = new HashMap<Gene,ArrayList<Gene>>(P1.getLenght()*P1.getLenght());
 
         // Puts the adjacent genes from chromosome1 on the HashMap
-        for (int i=0;i<chr1.getLenght();i++){
+        for (int i=0;i<P1.getLenght();i++){
             ArrayList<Gene> list = new ArrayList<Gene>();
-            list.add(chr1.getGeneAfter(i));
-            list.add(chr1.getGeneBefore(i));
-            edgeTable.put(chr1.getGene(i), list);
+            list.add(P1.getGeneAfter(i));
+            list.add(P1.getGeneBefore(i));
+            edgeTable.put(P1.getGene(i), list);
         }
         // Puts the adjacent genes from chromosome2 on the HashMap
-        for (int i=0;i<chr2.getLenght();i++){
-//ArrayList<Gene> list = new ArrayList<Gene>();
-            ArrayList<Gene> list = (ArrayList)edgeTable.get(chr2.getGene(i));
-//try {
-//System.out.println("List size:"+list.size());
-//System.out.println("List:"+list.toString());
-//System.out.println("i:" +i);
-//System.out.println("chr2.getGeneAfter(i)" +chr2.getGeneAfter(i));
-
-Gene newgene = chr2.getGeneAfter(i);
-            list.add(newgene);
-            list.add(chr2.getGeneBefore(i));
-//            edgeTable.put(chr2.getGene(i), list);
-//} catch (NullPointerException e){
-//    System.out.println("===================================");
-//    System.out.println("i:" +i);
-//    System.out.println("Edge Table:\n"+edgeTable.toString());
-//}
+        for (int i=0;i<P2.getLenght();i++){
+            ArrayList<Gene> list = (ArrayList)edgeTable.get(P2.getGene(i));
+            list.add(P2.getGeneAfter(i));
+            list.add(P2.getGeneBefore(i));
         }
         
         return edgeTable;
@@ -154,9 +148,12 @@ Gene newgene = chr2.getGeneAfter(i);
     
     // Returns a common gene, if it exists, otherwise returns null
     public static Gene getCommonEdge(ArrayList<Gene> values){
+        // 1. Creates a HashSet of the size of the list
         HashSet<Gene> valuesSet = new HashSet<Gene>(values.size(),1);
         for (int i=0;i<values.size();i++){
-            // If the set already contained the gene, return it
+            // 2. Start adding genes from the list to the set.
+            // If the set already contains the current gene, the add operation returns false
+            // and we just return that gene, as it is a duplicate.
             if (!valuesSet.add(values.get(i))){
                 return values.get(i);
             }
@@ -184,14 +181,12 @@ Gene newgene = chr2.getGeneAfter(i);
     public static Gene randomEntry(HashMap edgeTable){
         // Get the keys as an array
         Gene[] entrySet = (Gene[])edgeTable.keySet().toArray(new Gene[0]);
-        // Iterate throught the array
-        for (Gene gene : entrySet){
-            // If there is a non-empty set, return his key (gene)
-            if (!((ArrayList<Gene>)edgeTable.get(gene)).isEmpty()){
-                return gene;
-            }
-        }
-        return null;
+
+        // Choose one key, randomly
+        int randomIndex = Randomizer.randomInt(entrySet.length);
+        
+        // Return the respective gene
+        return entrySet[randomIndex];
     }
     
 }   // End of class definition

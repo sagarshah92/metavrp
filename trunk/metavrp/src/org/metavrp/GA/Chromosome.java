@@ -33,8 +33,7 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
         this.nrVehicles= geneList.getNrVehicles();
         this.costMatrix = dm;
         this.genes = generateRandomChromosome(geneList);
-// TODO: Remover isto       
-verificarGenes();
+        verifyGenes();
         this.fitness = measureFitness();
     }
 
@@ -45,28 +44,30 @@ verificarGenes();
         this.genes = genes;
         this.nrVehicles = countVehicles(genes);
         this.nrNodes = genes.length - this.nrVehicles;
-// TODO: Remover isto   
-verificarGenes();        
+        verifyGenes();
         this.fitness = measureFitness();
     }
     
-// TODO: Remover isto?
-public void verificarGenes(){
-    // TODO: criar nova geneList
-    ArrayList<Gene> genesList = new ArrayList<Gene>();
-    genesList.addAll(Arrays.asList(genes));
-    for (Gene gene : genes){
-        if (!genesList.contains(gene)){
-            throw new AssertionError("Falta um gene!");
+    /*
+     * Verifies that the genes of this chromosome are correct. That there are no duplicates,
+     * or some missing genes.
+     * This is just to help the developer certify that his operators (crossover, mutation)
+     * are generating correct results.
+     */
+    public final void verifyGenes(){
+        ArrayList<Gene> genesList = new ArrayList<Gene>(Arrays.asList(genes));
+        for (Gene gene : genes){
+            if (!genesList.contains(gene)){
+                throw new AssertionError("There's a gene missing!");
+            }
+            genesList.remove(gene);
         }
-        genesList.remove(gene);
+        if (!genesList.isEmpty()){
+            throw new AssertionError("There are duplicated genes!");
+        }
+        if (costMatrix.getSize()!=genes.length-nrVehicles+1)
+            throw new AssertionError("Some genes are missing in the chromosome!");
     }
-    if (!genesList.isEmpty()){
-        throw new AssertionError("Está um gene a mais!");
-    }
-    if (costMatrix.getSize()!=genes.length-nrVehicles+1)
-        throw new AssertionError("Faltam genes no cromosoma!");
-}
     
     //****************************
     // Generate a random chomosome
@@ -237,6 +238,7 @@ if (count!=1){ System.out.println("O cromosoma: " + this.print()+ "Tem "+count+"
     }
     
     // Finds the index of the given gene
+    // @throws java.lang.NullPointerException in the case that the gene is null
     public int indexOf(Gene g) {
         int index = -1;
         for (int i = 0; i < this.getLenght(); i++) {
@@ -333,7 +335,7 @@ if (count!=1){ System.out.println("O cromosoma: " + this.print()+ "Tem "+count+"
         String chrPrint = "[ ";
         for (int i=0; i<genes.length;i++){
             if (genes[i].getIsVehicle()){
-                chrPrint += "!VVVVV! ";
+                chrPrint += "V ";
             }
             else {
                 chrPrint += genes[i].getNode()+" ";
