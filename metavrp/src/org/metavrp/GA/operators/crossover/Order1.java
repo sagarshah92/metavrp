@@ -30,7 +30,6 @@ public class Order1 {
         }
         
         // Clone the parents 
-        // TODO: Remover isto e criar o filho como um array de genes, como no Edge3
         Chromosome[] childs = parents.clone();
         try{
         for (int i=0; i<parents.length;i++){

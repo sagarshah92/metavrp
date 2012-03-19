@@ -20,7 +20,7 @@ import java.util.*;
  * @author David Pinheiro
  */
 public class Edge3 {
-    
+  
     public static Chromosome[] Edge3 (Chromosome[] parents, float probability){
         
         // Warning of out of scope probability
@@ -74,7 +74,7 @@ public class Edge3 {
         Chromosome[] childs = new Chromosome[2];
         childs[0] = new Chromosome(child1, parents[0].getCostMatrix());
         childs[1] = new Chromosome(child2, parents[0].getCostMatrix());
-
+       
         // Verify if the genes are correctly created
         childs[0].verifyGenes();
         childs[1].verifyGenes();
@@ -107,24 +107,24 @@ public class Edge3 {
         return edgeTable;
     }
     
-    // Remove all references to currentElement from the Edge table
+        // Remove all references to currentElement from the Edge table
     public static ArrayList<Gene> getRemoveElement(HashMap edgeTable, Gene currentElement){
-        // Get the keys on an array
-        Set keySet = edgeTable.keySet();
-        Gene[] keys = (Gene[])keySet.toArray(new Gene[0]);
-        // For each of the keys, remove the element, when present
-        for (int i=0; i<keys.length; i++){
-            ArrayList<Gene> values = (ArrayList)edgeTable.get(keys[i]);
+
+        // Get the current element's values
+        ArrayList<Gene> currentValues = (ArrayList)edgeTable.get(currentElement);
+
+        // Remove the current element from the map
+        edgeTable.remove(currentElement);
+ 
+        // Remove any reference to the currentElement gene from the mappings
+        for (Object key:edgeTable.keySet()){
+            ArrayList<Gene> values = (ArrayList)edgeTable.get(key);
             // Keep removing the (various) ocorrences of the element
             while (values.remove(currentElement)){}
-            edgeTable.put(keys[i], values);   // Put the list back on the HashMap
         }
-        // Get the current element's values
-        ArrayList<Gene> values = (ArrayList)edgeTable.get(currentElement);
-        // Remove the current element
-        edgeTable.remove(currentElement);
+        
         // Return the current element's values
-        return values;
+        return currentValues;
     }
     
     // Returns the next element that should be used on the next iteration of edge-3

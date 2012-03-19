@@ -145,9 +145,6 @@ System.out.println("Child 2:"+child2.print());
         child1.verifyGenes();
         child2.verifyGenes();
         
-        child1.updateFitness();
-        child2.updateFitness();
-        
         return childs;
     }
 

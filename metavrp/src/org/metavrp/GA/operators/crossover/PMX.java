@@ -182,9 +182,6 @@ public class PMX {
         child1.verifyGenes();
         child2.verifyGenes();
         
-        child1.updateFitness();
-        child2.updateFitness();
-        
         return childs;
     }
 }

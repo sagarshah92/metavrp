@@ -26,14 +26,14 @@ public class Customer implements Gene, Cloneable {
    // What's this customer's goods demand, that need to be transported? It's measure (size, volume, quantity, etc...)
    private float demand;
 
-   // Constructs a Customer with infinite capacity. 
+   // Constructs a Customer with no demand. 
     public Customer (int id, int node){
         this.id=id;
         this.node=node;
         this.demand=0;
     }
     
-    // Constructs a Customer with capacity
+    // Constructs a Customer with a given demand
     public Customer (int id, int v, float demand){
         this.id=id;
         this.node=v;
@@ -99,10 +99,6 @@ public class Customer implements Gene, Cloneable {
         float clonedSize = this.demand;
         
         Customer newCustomer = new Customer (clonedId, clonedNode, clonedSize);
-
-// TODO: delete this        
-int hashOriginal = this.hashCode();
-int hashClone = newCustomer.hashCode();
         
         return newCustomer;
     }

@@ -29,12 +29,10 @@ public class SwapNextMutation{
             if (Randomizer.doIt(probability)){                   
                 // Swap the gene with the next one
                 genes.swapWithNextGene(gene);
+//System.out.println("1 Swap");                
             }
         }
-     
-        // Measure the new fitness of the chromosome
-        genes.updateFitness();
-        
+
         // Return the modified chromosome
         return genes;
     }

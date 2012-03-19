@@ -19,21 +19,23 @@ import org.metavrp.VRP.CostMatrix;
 // TODO: if generations=0 never stop running
 public class VRPGARun implements Runnable{
     
-    private Population pop;         // Current population
-    private static Population firstPop;    // The first population, the one that was created randomly
+    private Population pop;             // Current population
+    private static Population firstPop; // The first population, the one that was created randomly
     
-    private int popSize;            // Size of the population
-    private float mutationProb;     // Probability of mutation (0..1)
-    private float crossoverProb;    // Probability of crossover (0..1)
-    private int generations;        // Number of generations to run. 
-    private float elitism;          // Use of elitism from 0 (no elitism) to 1 
-                                    // (every chromosome on the new population comes from the old one)    
-    private GeneList geneList;      // Object with the genes (vehicles and customers)
-    private CostMatrix costMatrix;  // Object with the costs between nodes
+    private int popSize;                // Size of the population
+    private float mutationProb;         // Probability of mutation (0..1)
+    private float crossoverProb;        // Probability of crossover (0..1)
+    private int generations;            // Number of generations to run. 
+    private float elitism;              // Use of elitism from 0 (no elitism) to 1 
+                                        // (every chromosome on the new population comes from the old one)    
+    private long acumulatedNrFitnessEvaluations = 0;    // The acumulated number of fitness evaluations on this run of the GA
     
-    private int generation=0;       // The current generation's number
+    private GeneList geneList;          // Object with the genes (vehicles and customers)
+    private CostMatrix costMatrix;      // Object with the costs between nodes
+    
+    private int generation=0;           // The current generation's number
 
-    
+
     public VRPGARun(GAParameters params, GeneList geneList, CostMatrix costMatrix){
         
         this.popSize = params.getPopSize();
@@ -44,8 +46,15 @@ public class VRPGARun implements Runnable{
         
         this.geneList = geneList;
         this.costMatrix = costMatrix;
+
+    }
+
+    @Override
+    public void run(){
         
-        // Create Population
+        long start = System.currentTimeMillis();
+        
+        // Randomly create the initial Population
         pop = new Population(popSize, geneList, costMatrix);
         
         // Copy the first population
@@ -54,12 +63,6 @@ public class VRPGARun implements Runnable{
         } catch (CloneNotSupportedException ex){
             ex.printStackTrace();
         }
-    }
-
-    @Override
-    public void run (){
-        
-        long start = System.currentTimeMillis();
         
         // Some statistics
         float startBest = pop.getBestFitness();
@@ -70,62 +73,69 @@ public class VRPGARun implements Runnable{
         long end; 
         
         do {
-
+                // Mark the time at which the last population ended
                 end = System.currentTimeMillis();
+                
+                // Acumulate the number of fitness evaluations
+                acumulatedNrFitnessEvaluations += pop.getNrFitnessEvaluations();   
+
+                // Print the population statistics
                 printPopulationStatistics(pop, generation, end - start);
+
+                // Reset the number of fitness evaluations
+                pop.resetNrFitnessEvaluations();
+
+                // Mark the time at which the next population starts
                 start = System.currentTimeMillis();
          
+                // Lets clone the old population
+                // TODO: There's no need to this. We can just use one population.
                 try{
-                newPop = (Population)pop.clone();
+                    newPop = (Population)pop.clone();
                 } catch (CloneNotSupportedException ex){
                     ex.printStackTrace();
                 }
-                
-                Chromosome[] tmpPop = new Chromosome[popSize];
-                
-                //
-                for (int i=0;i<popSize;i=i+2) {
+
+                // Create a temporary array of chromosomes to be used on the next population
+                Chromosome[] matingPool = new Chromosome[popSize];
+
+                // Run the GA: Selection, Crossover, Mutation and Replacement
+                for (int i=0;i<(popSize-(popSize*elitism));i=i+2) {
                     // If the population size is odd, on the last single element 
                     // we just do selection and mutation
                     if ((i+2)>popSize){
                         Chromosome parent = Selection.tournamentSelection(2,newPop);
                         Chromosome child = SwapNextMutation.swapNextMutation(mutationProb, parent);
-                        tmpPop[i] = child;
+                        matingPool[i] = child;
                     }
                     
                     else {
 
+                        // 1. Selection
                         Chromosome[] parents = new Chromosome[2];
                         parents[0] = Selection.tournamentSelection(2,newPop);
                         parents[1] = Selection.tournamentSelection(2,newPop);
 
-    //    System.out.println("Pai 0: "+parents[0].toString());   
-    //    System.out.println("Pai 1: "+parents[1].toString());   
-        //System.out.println("Pais: "+parents.hashCode());
-                        Chromosome[] childs = new Chromosome[2];
+                        // 2. Crossover (with a given probability)
+                        Chromosome[] childs;
 
-    //                       childs[0]=(Chromosome)parents[0].clone();
-    //                       childs[1]=(Chromosome)parents[1].clone();
-//                        childs[0]=parents[0];
-//                        childs[1]=parents[1];
-
-        //System.out.println("Filhos: "+childs.hashCode());
 //                        childs = PMX.PMX(parents,crossoverProb);
-                        childs = Edge3.Edge3(parents,crossoverProb);
-//                        childs = Order1.Order1(parents,crossoverProb);
+//                        childs = Edge3.Edge3(parents,crossoverProb);
+                        childs = Order1.Order1(parents,crossoverProb);
 
+                        // 3. Mutation (with a given probability)
                         childs[0]=SwapNextMutation.swapNextMutation(mutationProb, childs[0]);
                         childs[1]=SwapNextMutation.swapNextMutation(mutationProb, childs[1]);
 
-    //    System.out.println("Filho 0: "+childs[0].toString()); 
-    //    System.out.println("Filho 1: "+childs[1].toString()); 
+                        matingPool[i]=childs[0];
+                        matingPool[i+1]=childs[1];
 
-                        tmpPop[i]=childs[0];
-                        tmpPop[i+1]=childs[1];  //TODO: caso a população seja impar, isto dá barraca
                     }
                 }
-                
-                newPop = Replacement.populationReplacement(tmpPop, pop, elitism, geneList, costMatrix);
+
+                // After Selection, Crossover, Mutation in all the chromosomes of the population,
+                // lets do the replacement
+                newPop = Replacement.populationReplacement(matingPool, pop, elitism, geneList, costMatrix);
 
                 pop = newPop;   // Bye bye old population. Be trash collected!!!
                 
@@ -137,22 +147,25 @@ public class VRPGARun implements Runnable{
         float endAverage = pop.getAverageFitness();
         float endWorst = pop.getWorstFitness();
         
-        System.out.println("\n\n Best Improvement: "+ ((startBest-endBest)/startBest));
-        System.out.println("Average Improvement: "+ ((startAverage-endAverage)/startAverage));
-        System.out.println("Worst Improvement: "+ ((startWorst-endWorst)/startWorst));
+        System.out.println("\n\n Improvement of the best element, on this run: "+ ((startBest-endBest)/startBest));
+        System.out.println("Improvement of the average element, on this run: "+ ((startAverage-endAverage)/startAverage));
+        System.out.println("Improvement of the worst element, on this run: "+ ((startWorst-endWorst)/startWorst));
+        System.out.println("Average number of fitness evaluations: "+ (acumulatedNrFitnessEvaluations/generation));
+        System.out.println("Total number of fitness evaluations: "+acumulatedNrFitnessEvaluations);
     }
     
     
     // Prints some statistics about population
     public static void printPopulationStatistics(Population pop, int generation, long time){
-        System.out.println("\nGeneration: "+generation);
+        System.out.println("\n\nGeneration: "+generation);
         System.out.println("Best cost value: "+pop.getBestFitness());
         System.out.println("Best cost improvement: "+pop.calcBestImprovement(firstPop)*100 + " %");
         System.out.println("Average cost value: "+pop.getAverageFitness());
         System.out.println("Average cost improvement: "+pop.calcAverageImprovement(firstPop)*100 + " %");
         System.out.println("Worst cost value: "+pop.getWorstFitness());
         System.out.println("Worst cost improvement: "+pop.calcWorstImprovement(firstPop)*100 + " %");
-        System.out.println("Time spent on this generation: "+time+"ms\n\n");
+        System.out.println("Time spent on this generation: "+time+"ms");
+        System.out.println("Number of fitness evaluations: "+pop.getNrFitnessEvaluations());
     }
     
     /*

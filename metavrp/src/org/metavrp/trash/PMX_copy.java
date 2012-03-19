@@ -124,10 +124,7 @@ public class PMX_copy {
 //System.out.println(childs[j].print());
             
 //System.out.println("Child "+j+": "+childs[j].print());            
-        
-        child1.updateFitness();
-        child2.updateFitness();
-        
+
         return childs;
     }
 
