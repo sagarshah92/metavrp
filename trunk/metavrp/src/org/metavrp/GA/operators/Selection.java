@@ -12,9 +12,11 @@ import java.util.Arrays;
  * @author David Pinheiro
  */
 public class Selection {
-    
-    // Tournament selection 
-    // Pick n members at random and return the best of them
+    /* 
+     * Tournament selection.
+     * Pick n elements at random and return the best of them.
+     * Attention! It returns a copy of the best element, not a pointer.
+     */
     public static Chromosome tournamentSelection(int n, Population pop) {
         Chromosome[] tournamentPool = new Chromosome[n]; //Create a tournament pool
         Chromosome[] chromosomes = pop.getChromosomes();
@@ -22,11 +24,17 @@ public class Selection {
             // Add random chromosomes to the pool
             tournamentPool[i]=chromosomes[Randomizer.randomInt(chromosomes.length)];
         }
-        Arrays.sort(tournamentPool, pop); //Sort the pool
-        return tournamentPool[0];// Return the best chromosome (the first)
+        Arrays.sort(tournamentPool, pop); //Sort the pool according to the Population's comparator
+        
+        // Clone the best element of the Tournament Pool and return it.
+        try{
+            return (Chromosome)tournamentPool[0].clone();
+        } catch (CloneNotSupportedException ex){
+            System.out.println("[Error] Could't clone the best element of the Tournament Pool:");
+            ex.printStackTrace();
+            return null;
+        }
     }
-    
-    
 }
 
 

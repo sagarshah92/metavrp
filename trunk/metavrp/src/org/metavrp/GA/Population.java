@@ -20,18 +20,18 @@ public class Population implements Cloneable, Comparator<Chromosome>{
 
     private Chromosome[] chromosomes;
 
-    private float bestFitness;      //Best fitness value in the population
-    private float worstFitness;     //Worst fitness value in the population
-    private float averageFitness;   //Average fitness value in the population
-    private float medianFitness;    //The median fitness value in the population
+    private float bestFitness;          //Best fitness value in the population
+    private float worstFitness;         //Worst fitness value in the population
+    private float averageFitness;       //Average fitness value in the population
+    private float medianFitness;        //The median fitness value in the population
 
-    private int chromosomeLength;   //Size of the chromosomes. Number of genes.
-    private int nrNodes;            //Number of nodes in each chromosome
-    private int nrVehicles;         //Number of vehicles in each chromosome
+    private int chromosomeLength;       //Size of the chromosomes. Number of genes.
+    private int nrNodes;                //Number of nodes in each chromosome
+    private int nrVehicles;             //Number of vehicles in each chromosome
     
-    private GeneList geneList;      // A list of the possible genes (vehicles and nodes)
+    private GeneList geneList;          // A list of the possible genes (vehicles and nodes)
     
-    private CostMatrix costMatrix; //The (very important) cost matrix
+    private CostMatrix costMatrix;      //The (very important) cost matrix
 
     
     //**************
@@ -112,7 +112,7 @@ public class Population implements Cloneable, Comparator<Chromosome>{
         if (chromosomes.length<popSize) { // In this case we have to generate the rest of the chromosomes
             newChromosomes = new Chromosome[popSize]; //Initialize the array 
             newChromosomes = Arrays.copyOf(chromosomes, popSize);   //Copy the given chromosomes
-            for (int i=chromosomes.length; i < popSize; i++) {    // Generate the rest
+            for (int i=chromosomes.length; i < popSize; i++) {    // Randomly generate the rest
                 newChromosomes[i] = new Chromosome(geneList, costMatrix); // Call the constructor
             }
         } else if (chromosomes.length == popSize) {
@@ -195,6 +195,28 @@ public class Population implements Cloneable, Comparator<Chromosome>{
     }
     
     /*
+     * Returns the number of times that the Fitness evaluation function was called
+     * on this population.
+     */
+    public long getNrFitnessEvaluations(){
+        long totalFitnessEvaluations=0;
+        for (Chromosome chr:chromosomes){
+            totalFitnessEvaluations += chr.getNrFitnessEvaluations();
+        }
+        return totalFitnessEvaluations;
+    }
+    
+    /*
+     * Resets the number of times that the Fitness evaluation function was called
+     * on this population.
+     */
+    public void resetNrFitnessEvaluations(){
+        for (Chromosome chr:chromosomes){
+            chr.resetNrFitnessEvaluations();
+        }
+    }
+    
+    /*
      * Measure improvements
      * 
      * Get the corresponding fitness value of the given population.
@@ -254,7 +276,7 @@ public class Population implements Cloneable, Comparator<Chromosome>{
     public int popSize(){
         return chromosomes.length;
     }
-
+    
     public Chromosome[] getChromosomes() {
         return chromosomes;
     }

@@ -38,9 +38,6 @@ public class SwapMutation{
                 genes.swapGenes(geneA, geneB);
             }
         }
-     
-        // Measure the new fitness of the chromosome
-        genes.updateFitness();
         
         // Return the modified chromosome
         return genes;

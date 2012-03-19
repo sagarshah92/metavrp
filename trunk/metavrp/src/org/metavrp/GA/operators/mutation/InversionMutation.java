@@ -59,9 +59,6 @@ public class InversionMutation{
                 }
             }
         }
-     
-        // Measure the new fitness of the chromosome
-        genes.updateFitness();
 
         // Return the modified chromosome
         return genes;
