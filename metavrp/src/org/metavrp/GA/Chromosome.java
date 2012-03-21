@@ -3,6 +3,8 @@ package org.metavrp.GA;
 import org.metavrp.GA.support.Randomizer;
 import org.metavrp.VRP.CostMatrix;
 import java.util.*;
+import org.metavrp.GA.fitnessFunctions.CVRP;
+import org.metavrp.GA.fitnessFunctions.SimpleVRP;
 
 /**
  * 
@@ -20,9 +22,9 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
 
     private float fitness;                      // Chromosome's fitness value (Corresponds to the total cost)
     private boolean isFitnessOutdated = false;  // True if we need to reevaluate the fitness of this chromosome
-    private int nrFitnessEvaluations = 0;         // The number of fitness evaluations
+    private int nrFitnessEvaluations = 0;       // The number of fitness evaluations
 
-    private float[] vehiclesFitness;            // Fitness of the vehicles
+    private float[] vehiclesCosts;            // Costs (fitness values) of the vehicles
     
     
     // Constructor.
@@ -47,7 +49,7 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
         this.costMatrix = costMatrix;
         this.genes = genes;
         this.fitness = fitness;
-        this.vehiclesFitness = vehiclesFitness;
+        this.vehiclesCosts = vehiclesFitness;
     }
     
     // Constructor. 
@@ -57,7 +59,7 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
     public Chromosome(Gene[] genes, CostMatrix dm) {
         this.costMatrix = dm;
         this.genes = genes;
-        this.nrVehicles = countVehicles(genes);
+        this.nrVehicles = countVehicles();
         this.nrNodes = genes.length - this.nrVehicles;
         if (this.nrNodes < 3){
             throw new AssertionError("[Error] This Library only works with more than two nodes.");
@@ -71,6 +73,10 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
      * or some missing genes.
      * This is just to help the developer certify that his operators (crossover, mutation)
      * are generating correct results.
+     * 
+     * TODO: Verify if each gene has an unique ID.
+     * TODO: This method needs review to verify if each gene on the geneList is used 
+     * once and only once.
      */
     public final void verifyGenes(){
         ArrayList<Gene> genesList = new ArrayList<Gene>(Arrays.asList(genes));
@@ -83,7 +89,7 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
         if (!genesList.isEmpty()){
             throw new AssertionError("There are duplicated genes!");
         }
-        if (costMatrix.getSize()!=genes.length-nrVehicles+1)
+        if (costMatrix.getSize()!=genes.length)
             throw new AssertionError("Some genes are missing in the chromosome!");
     }
     
@@ -111,17 +117,14 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
     
     
     // Counts the number of vehicles present in the genes
-    private int countVehicles(Gene[] genes){
+    public int countVehicles(){
         int count=0;
-        for (int i=0;i<genes.length;i++){
-            if (genes[i].getIsVehicle()){
+        for (int i=0;i<this.genes.length;i++){
+            if (this.genes[i].getIsVehicle()){
                 count++;
             }
         }
-if (count!=1){ System.out.println("O cromosoma: " + this.print()+ "Tem "+count+" veiculos");}        
-        
         return count;
-
     }
 
 
@@ -129,76 +132,40 @@ if (count!=1){ System.out.println("O cromosoma: " + this.print()+ "Tem "+count+"
     // Fitness Functions
     //*******************
     
-    // Measure the fitness of this chromosome.
-    // Rebuild this method for simplicity, clarity and to incorporate the CVRP.
+    // Measure the fitness of this chromosome. The cost associated with it.
     private float measureFitness(){
+        // TODO: The second parameter of CVRP.measureCost needs to be automated
+        float cvrpCost = CVRP.measureCost(this, 0.1f);
+//        float simplevrpCost = SimpleVRP.measureCost(this);
+//   
+//        if (cvrpCost == simplevrpCost){
+//            System.out.println("Fitnesses iguais");
+//        } else {
+//            System.out.println("Fitnesses diferentes -> Foi necessário visitar o deposito");
+//        }
         
-        int nVehicles = countVehicles(genes);       // Count the number of vehicles
-        
-        float[] vFitness = new float[nVehicles];    // The fitness (routing cost) of the vehicles
-        int vehicle=0;                              // The number of the vehicle
-        
-        int indexFirstVehicle = indexFirstVehicle();
-        int currentNode=indexFirstVehicle;
-        int nextNode=indexFirstVehicle+1;
-        
-        int vehicleStartNode=0;                     // To use later: The node from where this vehicle started
-        
-        // First: count the fitness of each vehicle
-        do {
-            // Starting from the first gene, go throught every gene on the chromosome 
-            // summing the cost from him to the next one
-
-            if (currentNode==genes.length-1){
-                // If the current gene is the last one, the next will be the first one
-                nextNode=0;
-            }
-
-            if (genes[currentNode].getIsVehicle() && genes[nextNode].getIsVehicle()){
-                vehicle++;
-                if (vehicle>=nVehicles){vehicle=0;} // If we pass the last vehicle (at the end of the chromosome) 
-                                                    // we need to sum the node's cost to the first one
-                // If this node and the next one are vehicles, don't sum nothing and go to the next vehicle
-                vFitness[vehicle]=0;
-
-            } else if (genes[currentNode].getIsVehicle()){
-                // If this node is a vehicle, and the one before is a normal node,
-                // sum the cost and go to the next vehicle
-                vehicle++;
-                if (vehicle>=nVehicles){vehicle=0;} // If we pass the last vehicle (at the end of the chromosome) 
-                                                    // we need to sum the node's cost to the first one
-                vFitness[vehicle]+=costMatrix.getCost(genes[currentNode].getNode(), genes[nextNode].getNode());
-                vehicleStartNode=currentNode;
-            } else if (genes[nextNode].getIsVehicle()){
-                // If the next node is another vehicle, sum the cost from this node to the
-                // departure node of this vehicle 
-                vFitness[vehicle]+=costMatrix.getCost(genes[currentNode].getNode(), genes[vehicleStartNode].getNode());
-            } else {
-                // If this is a normal node we get de cost between the node and the one after him
-                vFitness[vehicle]+=costMatrix.getCost(genes[currentNode].getNode(), genes[nextNode].getNode());
-            }
-            
-            currentNode=nextNode;
-            nextNode++;
-                    
-        } while (currentNode!=indexFirstVehicle);
-        
-        this.vehiclesFitness=vFitness;
-        
-        // Second: sum the fitness of the vehicles
-        float globalFitness=0;
-        // For all vehicles, sum their fitness
-        for (int i=0; i<vFitness.length; i++){
-            globalFitness += vFitness[i];
-        }
-        
-        // Increment the number of fitness evaluations
-        this.nrFitnessEvaluations++;
-System.out.println("Foi feito um update ao fitness: "+nrFitnessEvaluations);
-//System.out.println("O fitness do cromossoma "+this.toString()+" é: "+globalFitness);        
-        return globalFitness;
+        // Return the global cost
+        return cvrpCost;
     }
     
+    /*
+     * Returns the cost of going from the node who's gene is given on the first parameter
+     * to the node who's gene is given on the second one.
+     */
+    public float getCost(Gene geneA, Gene geneB){
+        int nodeA = geneA.getNode();
+        int nodeB = geneB.getNode();
+        return getCost(nodeA, nodeB);
+    }
+    
+    /*
+     * Returns the cost of going from the node who's index is given on the 
+     * first parameter to the node who's index is given on the second one.
+     */
+    public float getCost(int nodeA, int nodeB){
+        return costMatrix.getCost(nodeA, nodeB);
+    }
+
     
     // Updates the fitness value of this chromosome if it is outdated
     public void updateFitness() {
@@ -214,6 +181,15 @@ System.out.println("Foi feito um update ao fitness: "+nrFitnessEvaluations);
      */
     public void resetNrFitnessEvaluations() {
         this.nrFitnessEvaluations = 0;
+    }
+    
+    /*
+     * Increments by one the number of fitness evaluations.
+     * @returns Number of fitness evaluations of this chromosome.
+     */
+    public int incrementFitnessEvaluations(){
+        this.nrFitnessEvaluations++;
+        return this.nrFitnessEvaluations;
     }
     
     
@@ -234,8 +210,6 @@ System.out.println("Foi feito um update ao fitness: "+nrFitnessEvaluations);
     
     // Swaps two given genes
     public void swapGenes(Gene a, Gene b){
-//TODO: remove this
-//System.out.println("Cromossoma antes do swap: "+this.print());
         int indexA=this.indexOf(a); //Find their indexes
         int indexB=this.indexOf(b);
         // If one of the indexes is -1, that gene doesn't exist on the chromosome
@@ -248,8 +222,6 @@ System.out.println("Foi feito um update ao fitness: "+nrFitnessEvaluations);
         
         this.setGene(b, indexA);    // Swap them using the indexes
         this.setGene(a, indexB);
-//TODO: remove this
-//System.out.println("Cromossoma após o swap: "+this.print());
     }
     
     // Swaps a given gene with the next one
@@ -291,12 +263,15 @@ System.out.println("Foi feito um update ao fitness: "+nrFitnessEvaluations);
         throw new AssertionError("ERROR: The array of genes doesn't have any vehicles!");
     }
     
+    // Gets the (gene of the) first vehicle
+    public Gene getFirstVehicle(){
+        return getGene(indexFirstVehicle());
+    }
+    
     // Verifies if this chromosome has a specified Gene
     public boolean hasGene(Gene g){
         for (int i = 0; i < genes.length; i++) {
             if (genes[i]!=null){
-//TODO: remove this. Is very slow.                
-//if (((Object)genes[i]).equals(g)){
                 if (genes[i]==g){
                     return true;
                 }
@@ -306,11 +281,9 @@ System.out.println("Foi feito um update ao fitness: "+nrFitnessEvaluations);
         }
         return false; // Returns true if the gene exists
     }
-
     
-    // Put all information about this chromosome in a string.
-    @Override
-    public String toString() {
+    // Print all information about this chromosome.   
+    public String print() {
         String gene = "";
         for (int i=0; i < genes.length; i++){
             gene += genes[i].toString()+" ";
@@ -318,23 +291,20 @@ System.out.println("Foi feito um update ao fitness: "+nrFitnessEvaluations);
         String text = "Genes: [ " + gene +"]";
         text+= "\n Fitness: " + Float.toString(this.getFitness());
         String vFitness = "";
-        for (int i=0; i < vehiclesFitness.length; i++){
-            vFitness += Float.toString(vehiclesFitness[i])+" ";
+        for (int i=0; i < vehiclesCosts.length; i++){
+            vFitness += Float.toString(vehiclesCosts[i])+" ";
         }
         text+= "\n Vehicles fitness: " + vFitness;
+        System.out.println(text);
         return text;
     }
     
-    // Print all information about this chromosome.
-    public String print(){
-        String chrPrint = "[ ";
+    // Put all information about this chromosome in a string.
+    @Override
+    public String toString(){
+        String chrPrint = "[";
         for (int i=0; i<genes.length;i++){
-            if (genes[i].getIsVehicle()){
-                chrPrint += "V ";
-            }
-            else {
-                chrPrint += genes[i].getNode()+" ";
-            }
+            chrPrint += genes[i].getNode()+"|";
         }
         chrPrint += "]";
         return chrPrint;
@@ -349,16 +319,13 @@ System.out.println("Foi feito um update ao fitness: "+nrFitnessEvaluations);
     // Clones this Chromosome
     @Override
     public Object clone() throws CloneNotSupportedException {
-//        Gene[] newGenes = genes.clone();
+
         Gene[] newGenes = new Gene[genes.length];
         for (int i=0; i<genes.length;i++){
             newGenes[i]=genes[i];
         }
-        Chromosome newChromosome = new Chromosome(newGenes, costMatrix, nrVehicles, nrNodes,  fitness, vehiclesFitness);
+        Chromosome newChromosome = new Chromosome(newGenes, costMatrix, nrVehicles, nrNodes,  fitness, vehiclesCosts);
         
-//int hashOld = this.genes.hashCode();
-//int hashNew = newChromosome.genes.hashCode();
-//System.out.println("A clonar cromossomas:\nHashOld: "+hashOld+"\n HashNew: "+hashNew+"\n\n");
         return newChromosome;
     }
 
@@ -441,7 +408,11 @@ System.out.println("Foi feito um update ao fitness: "+nrFitnessEvaluations);
     
     public float[] getVehiclesFitness() {
         updateFitness();
-        return vehiclesFitness;
+        return vehiclesCosts;
+    }
+
+    public void setVehiclesCosts(float[] vehiclesCosts) {
+        this.vehiclesCosts = vehiclesCosts;
     }
 
     public CostMatrix getCostMatrix() {

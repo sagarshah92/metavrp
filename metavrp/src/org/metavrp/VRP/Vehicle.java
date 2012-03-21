@@ -15,11 +15,14 @@ import org.metavrp.GA.*;
 public class Vehicle implements Gene, Cloneable {
 
 
-   // The ID of the Vehicle. Vehicles ID's are negative, compared to the usual customers, which are positive or zero.
+   // The ID of the Vehicle. 
+   // Vehicles ID's are negative, compared to the usual customers, which are positive or zero.
+   // It has to be a unique number for each gene (Customer and Vehicle).
    private int id;
     
    // Node number.
    // In case of a vehicle (this case), corresponds to its depot.
+   // Warning! This node should have a direct mapping to the corresponding index of the cost matrix!
    private int node;
    
    // What's this vehicle's capacity?

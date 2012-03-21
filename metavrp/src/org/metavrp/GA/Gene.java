@@ -12,11 +12,14 @@ public interface Gene {
     /* Getters and Setters */
     /* ------------------- */
 
-    // The ID of the gene. If positive, is a normal node. If negative, is a vehicle.
+    // The ID of the gene. 
+    // If positive, is a normal node. If negative, is a vehicle.
+    // It has to be a unique number for each gene.
     public int getId();
 
-    // Gene's value (node number)
-    // In case of a vehicle, corresponds to its initial node (depot)
+    // Gene's node.
+    // In case of a vehicle, corresponds to its initial node (depot).
+    // Warning! This node should have a direct mapping to the corresponding index of the cost matrix!
     public int getNode();
 
     // This gene is a vehicle?
