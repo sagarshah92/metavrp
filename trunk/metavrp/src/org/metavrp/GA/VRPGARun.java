@@ -143,11 +143,18 @@ public class VRPGARun implements Runnable{
             
         } while (generation<generations);
         
+        // Print the final population stats
+        System.out.println("\n");
+        printPopulationStatistics(pop, generation, end - start);
+        
+        // Print the best element
+        System.out.println("\nBest solution:" + pop.getTop(1)[0].toString());
+        
         float endBest = pop.getBestFitness();
         float endAverage = pop.getAverageFitness();
         float endWorst = pop.getWorstFitness();
         
-        System.out.println("\n\n Improvement of the best element, on this run: "+ ((startBest-endBest)/startBest));
+        System.out.println("\nImprovement of the best element, on this run: "+ ((startBest-endBest)/startBest));
         System.out.println("Improvement of the average element, on this run: "+ ((startAverage-endAverage)/startAverage));
         System.out.println("Improvement of the worst element, on this run: "+ ((startWorst-endWorst)/startWorst));
         System.out.println("Average number of fitness evaluations: "+ (acumulatedNrFitnessEvaluations/generation));

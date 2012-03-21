@@ -17,10 +17,11 @@ public class Customer implements Gene, Cloneable {
 
    // The ID of the customer. 
    // This ID is positive or zero for customers and negative for vehicles.
+   // It has to be a unique number for each gene (Customer and Vehicle).
    private int id;
    
    // Node number
-   // TODO: shouldn't this field be removed? And the ID used instead? From the class Vehicle too.
+   // Warning! This node should have a direct mapping to the corresponding index of the cost matrix!
    private int node;
    
    // What's this customer's goods demand, that need to be transported? It's measure (size, volume, quantity, etc...)
