@@ -23,6 +23,7 @@ public class SwapMutation{
      * Preserves most of the adjacency information (only 3 links are broken).
      */
     public static Chromosome swapMutation(float probability, Chromosome genes) {
+//System.out.println("Swap Mutation with probability: "+probability);
         // For each gene
         for (Gene geneA:genes.getGenes()){
             // If we should do it...

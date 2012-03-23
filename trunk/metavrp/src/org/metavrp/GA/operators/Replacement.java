@@ -15,6 +15,7 @@ public class Replacement {
     // The elitism defines the percentage of chromosomes that are copied 
     // from the old to the new population.
     public static Population populationReplacement(Chromosome[] matingPool, Population pop, float elitism, GeneList geneList, CostMatrix costMatrix){
+//System.out.println("Population Replacement with elitism %: "+(elitism*100));
         int nrEliteChromosomes = (int) (pop.getPopSize()*elitism); //Number of chromosomes to keep
         
         //
@@ -30,7 +31,7 @@ public class Replacement {
         Chromosome[] newChromosomes = Arrays.copyOfRange(matingPool, 0, pop.getPopSize() - nrEliteChromosomes);
         
         // The new population is the union of the two
-        Population newPopulation = new Population(newChromosomes, elitistChromosomes, geneList, costMatrix);
+        Population newPopulation = new Population(newChromosomes, elitistChromosomes, geneList, costMatrix, pop.getOperators());
         
         return newPopulation;
     }

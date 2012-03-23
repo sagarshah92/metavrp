@@ -10,8 +10,25 @@ import org.metavrp.GA.Gene;
  */
 public class CVRP {
     
+    float innerDepotPenalty = 0.0f;
+
+    /*
+     * Constructor
+     */
+    public CVRP(float innerDepotPenalty) {
+        this.innerDepotPenalty=innerDepotPenalty;
+    }
+        
+    /*
+     * Measure the fitness of this chromosome. The cost associated with it.
+     */
+    public float measureCost(Chromosome chr){
+        return measureCost(chr, innerDepotPenalty);
+    }
     
-    // Measure the fitness of this chromosome. The cost associated with it.
+    /*
+     * Measure the fitness of this chromosome. The cost associated with it.
+     */
     // TODO: Add support for maximum tour lenght
     // TODO: Add the objective that each vehicle visits the same customers or gets 
     // almost the same cost.

@@ -24,6 +24,7 @@ public class InsertMutation{
      * Preserves most of the adjacency information (only 3 links are broken).
      */
     public static Chromosome insertMutation(float probability, Chromosome genes) {
+//System.out.println("Insert Mutation with probability: "+probability);
         // For each gene
         for (Gene geneA:genes.getGenes()){
             // If we should do it...

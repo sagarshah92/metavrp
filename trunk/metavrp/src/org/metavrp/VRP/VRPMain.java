@@ -6,6 +6,8 @@ import java.util.ArrayList;
 
 import org.metavrp.GA.support.*;
 import org.metavrp.GA.*;
+import org.metavrp.GA.executors.GoldenWasilKellyChao1998;
+import org.metavrp.GA.operators.OperatorsAndParameters;
 
 //import java.util.logging.Level;
 //import java.util.logging.Logger;
@@ -21,42 +23,52 @@ public class VRPMain {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        
-        int popSize=200;
-        float elitism=0.1f;
-        float mutationProb=0.005848f;
-//        float mutationProb=0.142857f;
-        float crossoverProb=0.8f;
-        int nrGenerations=200;
-        
-        int nrVehicles=2;
-        float vehicleCapacity=0;
-        float customerDemand=0;
 
-        VRPGARun run = runRandomProblem(nrVehicles, vehicleCapacity, customerDemand, 
-                popSize, crossoverProb, elitism, mutationProb, nrGenerations);
-        
-        
+
+        // Run GoldenWasilKellyChao1998 instances
+        GoldenWasilKellyChao1998 run = new GoldenWasilKellyChao1998(1);
+
+        // Run a random problem
+//        VRPGARun run = runRandomProblem(1);
 
         // Start in a new thread
         Thread vrpThread = new Thread(run, "metaVRP");
         vrpThread.start();
+
+
     }
     
-    public static VRPGARun runRandomProblem (int nrVehicles, float vehicleCapacity, float customerDemand,
-            int popSize, float crossoverProb, float elitism, float mutationProb, int nrGenerations){
+    
+    // Run a randomly generated problem
+    public static VRPGARun runRandomProblem(int nrRun){
         File file = new File("instances\\vrp\\dm171.txt");  
-//        File file = new File("instances\\vrp\\dm7.txt");  
+//        File file = new File("instances\\vrp\\dm7.txt");
         String fileName = file.getAbsolutePath();
-     
         CostMatrix costMatrix = new CostMatrix(fileName, false);
+        
+        File statsFile = new File("stats\\dm171.stats");  
+        String statsFileName = statsFile.getAbsolutePath();
+        
+        int nrVehicles=1;
+        float vehicleCapacity=20;
+        float customerDemand=1;
+        int maxNrGenerationsWtImprovement=100;
 
         // Create the Gene List
         GeneList geneList = generateRandomGeneList(nrVehicles, costMatrix.size-nrVehicles, customerDemand, vehicleCapacity);
 
-        GAParameters params = new GAParameters(popSize, elitism, mutationProb, crossoverProb, nrGenerations);
+        // Create the operators and parameters
+        OperatorsAndParameters operators = new OperatorsAndParameters();
+        operators.setPopulationSize(172);
+        operators.setCrossoverOperator("PMX.PMX");
+        operators.setCrossoverProb(0.8f);
+        operators.setMutationOperator("SwapMutation.swapMutation");
+        operators.setMutationProb(1/costMatrix.size);
+        operators.setReplacementElitism(0.1f);
+        operators.setInnerDepotPenalty(0.01f);
 
-        VRPGARun run = new VRPGARun(params, geneList, costMatrix);
+        // The runner
+        VRPGARun run = new VRPGARun(operators, geneList, costMatrix, statsFileName, nrRun, maxNrGenerationsWtImprovement);
         
         return run;
     }

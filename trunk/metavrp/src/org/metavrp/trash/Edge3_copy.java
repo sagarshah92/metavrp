@@ -1,4 +1,4 @@
-package org.metavrp.GA.operators.crossover;
+package org.metavrp.trash;
 
 import org.metavrp.GA.Chromosome;
 import org.metavrp.GA.Gene;
@@ -19,7 +19,7 @@ import java.util.*;
  * 
  * @author David Pinheiro
  */
-public class Edge3 {
+public class Edge3_copy {
   
     public static Chromosome[] Edge3 (Chromosome[] parents, float probability){
 //System.out.println("Edge3 crossover with probability: "+probability);

@@ -27,7 +27,7 @@ public class Generation {
     private float averageFitness;   //Average fitness value in the generation
     private float medianFitness;    //The median fitness value in the generation
 
-    public Generation(Population oldPop, int genNumber, Operators operators) {
+    public Generation(Population oldPop, int genNumber, OperatorsAndParameters operators) {
         this.oldPop = oldPop;
         this.genNumber=genNumber;
         

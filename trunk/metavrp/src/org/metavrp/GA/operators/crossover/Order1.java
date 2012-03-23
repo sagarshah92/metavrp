@@ -12,6 +12,7 @@ public class Order1 {
     
     
     public static Chromosome[] Order1 (Chromosome[] parents, float probability){
+//System.out.println("Order1 crossover with probability: "+probability);
         // Should we do the crossover, based on the given probability? 
         // If not just return the parents.
         if (!Randomizer.doIt(probability)){
@@ -51,10 +52,6 @@ public class Order1 {
             child1.setGene(null, i);
             child2.setGene(null, i);
         }
-
-//System.out.println("Parent 0: "+childs[0].print());
-//System.out.println("Parent 1: "+childs[1].print());
-//System.out.println("Ponto 0: "+crossoverPoints[0]+"\nPonto 1: "+secondPoint);
         
         // 1. Choose an arbitrary part from the parent
         int[] crossoverPoints = Randomizer.randomCrossoverPoints(parent1,2);

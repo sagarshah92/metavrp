@@ -2,6 +2,7 @@
 package org.metavrp.GA;
 
 import java.util.*;
+import org.metavrp.GA.operators.OperatorsAndParameters;
 import org.metavrp.VRP.CostMatrix;
 
 /**
@@ -32,6 +33,8 @@ public class Population implements Cloneable, Comparator<Chromosome>{
     private GeneList geneList;          // A list of the possible genes (vehicles and nodes)
     
     private CostMatrix costMatrix;      //The (very important) cost matrix
+    
+    private OperatorsAndParameters operators;   // The chosen GA's operators and parameters
 
     
     //**************
@@ -41,9 +44,10 @@ public class Population implements Cloneable, Comparator<Chromosome>{
     // Creates a randomly generated population, given some population size (number
     // of chromosomes), some number of vehicles and the cost matrix.
     // All vehicles start (and end) from the first node of the cost matrix.
-    public Population(int popSize, GeneList geneList, CostMatrix costMatrix) {
+    public Population(int popSize, GeneList geneList, CostMatrix costMatrix, OperatorsAndParameters operators) {
         //Randomly generate the population
-        this.chromosomes = generateChromosomes(popSize, geneList, costMatrix); 
+        this.operators = operators;
+        this.chromosomes = generateChromosomes(popSize, geneList, costMatrix, operators); 
         this.chromosomeLength = this.chromosomes[0].getLenght();
         this.nrNodes = geneList.getNrNodes();
         this.nrVehicles = geneList.getNrVehicles();
@@ -56,8 +60,9 @@ public class Population implements Cloneable, Comparator<Chromosome>{
     // The population is given as an array of chromosomes. The rest 
     // (until popSize) is randomly generated.
     // All vehicles start (and end) from the first node of the cost matrix
-    public Population(Chromosome[] chromosomes, int popSize, GeneList geneList, CostMatrix costMatrix) {
-        this.chromosomes = generateMissingChromosomes(chromosomes, popSize, geneList, costMatrix);
+    public Population(Chromosome[] chromosomes, int popSize, GeneList geneList, CostMatrix costMatrix, OperatorsAndParameters operators) {
+        this.operators = operators;
+        this.chromosomes = generateMissingChromosomes(chromosomes, popSize, geneList, costMatrix, operators);
         this.chromosomeLength = this.chromosomes[0].getLenght();
         this.nrNodes = geneList.getNrNodes();
         this.nrVehicles = chromosomes[0].getNrVehicles();
@@ -73,7 +78,8 @@ public class Population implements Cloneable, Comparator<Chromosome>{
     // Not enought? Yet another constructor
     // This time the population is given as two arrays of chromosomes that are merged. 
     // All vehicles start (and end) from the first node of the cost matrix.
-    public Population(Chromosome[] newChromosomes, Chromosome[] elitistChromosomes, GeneList geneList, CostMatrix costMatrix) {
+    public Population(Chromosome[] newChromosomes, Chromosome[] elitistChromosomes, GeneList geneList, CostMatrix costMatrix, OperatorsAndParameters operators) {
+        this.operators = operators;
         Chromosome[] concatChromosomes = mergeChromosomes(newChromosomes, elitistChromosomes);
         this.chromosomes = concatChromosomes;
         this.chromosomeLength = this.chromosomes[0].getLenght();
@@ -96,24 +102,24 @@ public class Population implements Cloneable, Comparator<Chromosome>{
     // TODO: entre si (arranjar algum algoritmo para isto - por exemplo criando matrix de proximidades).
     
     // Create a population of random chromosomes
-    private Chromosome[] generateChromosomes(int popSize, GeneList geneList, CostMatrix costMatrix){
+    private Chromosome[] generateChromosomes(int popSize, GeneList geneList, CostMatrix costMatrix, OperatorsAndParameters operators){
         chromosomes = new Chromosome[popSize];
         // Construct each chromosome
         for (int i=0; i < popSize; i++) {
-            chromosomes[i] = new Chromosome(geneList, costMatrix); // Call the constructor
+            chromosomes[i] = new Chromosome(geneList, costMatrix, operators); // Call the constructor
         }
         return chromosomes;
     }
     
     // Create the missing chromosomes of some array
-    private Chromosome[] generateMissingChromosomes(Chromosome[] chromosomes, int popSize, GeneList geneList, CostMatrix costMatrix) {
+    private Chromosome[] generateMissingChromosomes(Chromosome[] chromosomes, int popSize, GeneList geneList, CostMatrix costMatrix, OperatorsAndParameters operators) {
         Chromosome[] newChromosomes;    //A new array of chromosomes to create a new population
 
         if (chromosomes.length<popSize) { // In this case we have to generate the rest of the chromosomes
             newChromosomes = new Chromosome[popSize]; //Initialize the array 
             newChromosomes = Arrays.copyOf(chromosomes, popSize);   //Copy the given chromosomes
             for (int i=chromosomes.length; i < popSize; i++) {    // Randomly generate the rest
-                newChromosomes[i] = new Chromosome(geneList, costMatrix); // Call the constructor
+                newChromosomes[i] = new Chromosome(geneList, costMatrix, operators); // Call the constructor
             }
         } else if (chromosomes.length == popSize) {
             newChromosomes=chromosomes;
@@ -158,7 +164,12 @@ public class Population implements Cloneable, Comparator<Chromosome>{
         best = Arrays.copyOfRange(this.chromosomes, 0, n);
         return (best);
     }
-
+    
+    // Get the best element of the population
+    public Chromosome getBestChromosome(){
+        return getTop(1)[0];
+    }
+    
     
     // Computes all the statistics
     public final void statistics(){
@@ -263,7 +274,7 @@ public class Population implements Cloneable, Comparator<Chromosome>{
         for (int i=0;i<popSize();i++){
             newChromosomes[i]=(Chromosome)chromosomes[i].clone();
         }
-        Population newPop = new Population(newChromosomes, popSize(), geneList, costMatrix);
+        Population newPop = new Population(newChromosomes, popSize(), geneList, costMatrix, operators);
         
         return newPop;
     }
@@ -297,6 +308,8 @@ public class Population implements Cloneable, Comparator<Chromosome>{
     public int getPopSize() {
         return chromosomes.length;
     }
-    
 
+    public OperatorsAndParameters getOperators() {
+        return operators;
+    }
 }

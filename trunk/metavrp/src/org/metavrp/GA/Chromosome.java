@@ -5,6 +5,7 @@ import org.metavrp.VRP.CostMatrix;
 import java.util.*;
 import org.metavrp.GA.fitnessFunctions.CVRP;
 import org.metavrp.GA.fitnessFunctions.SimpleVRP;
+import org.metavrp.GA.operators.OperatorsAndParameters;
 
 /**
  * 
@@ -15,21 +16,25 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
 
     private int nrVehicles;                     // The number of vehicles in the chromosome
     private int nrNodes;                        // The number of nodes not vehicles
+    private int nrDepots;   // TODO: Support multi-depots
     
     private CostMatrix costMatrix;              // Bi-dimentional array with the distances between any two nodes
 
     private Gene[] genes;                       // The actual chromosome: an Array of genes
+    
+    private OperatorsAndParameters operators;   // The chosen GA's operators and parameters
 
     private float fitness;                      // Chromosome's fitness value (Corresponds to the total cost)
     private boolean isFitnessOutdated = false;  // True if we need to reevaluate the fitness of this chromosome
     private int nrFitnessEvaluations = 0;       // The number of fitness evaluations
 
-    private float[] vehiclesCosts;            // Costs (fitness values) of the vehicles
+    private float[] vehiclesCosts;              // Costs (fitness values) of the vehicles
     
     
     // Constructor.
     // Creates a chromosome from a cost matrix. Genes are randomly generated.
-    public Chromosome(GeneList geneList, CostMatrix dm) {
+    public Chromosome(GeneList geneList, CostMatrix dm, OperatorsAndParameters operators) {
+        this.operators = operators;
         this.nrNodes = geneList.getNrNodes();
         if (this.nrNodes < 3){
             throw new AssertionError("[Error] This Library only works with more than two nodes.");
@@ -43,7 +48,8 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
 
     // Constructor.
     // Creates a chromosome from all the given data
-    public Chromosome(Gene[] genes, CostMatrix costMatrix, int nrVehicles, int nrNodes,  float fitness, float[] vehiclesFitness) {
+    public Chromosome(Gene[] genes, CostMatrix costMatrix, int nrVehicles, int nrNodes,  float fitness, float[] vehiclesFitness, OperatorsAndParameters operators) {
+        this.operators = operators;
         this.nrVehicles = nrVehicles;
         this.nrNodes = nrNodes;
         this.costMatrix = costMatrix;
@@ -56,7 +62,8 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
     // Creates a chromosome from an array of genes with the vehicles already there.
     // All the other data (nrVehicles, nrNodes, fitness, vehiclesFitness) is measured,
     // which creates an unnecessary overhead.
-    public Chromosome(Gene[] genes, CostMatrix dm) {
+    public Chromosome(Gene[] genes, CostMatrix dm, OperatorsAndParameters operators) {
+        this.operators = operators;
         this.costMatrix = dm;
         this.genes = genes;
         this.nrVehicles = countVehicles();
@@ -89,7 +96,7 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
         if (!genesList.isEmpty()){
             throw new AssertionError("There are duplicated genes!");
         }
-        if (costMatrix.getSize()!=genes.length)
+        if ((costMatrix.getSize()+nrVehicles-1)!=genes.length)
             throw new AssertionError("Some genes are missing in the chromosome!");
     }
     
@@ -135,7 +142,7 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
     // Measure the fitness of this chromosome. The cost associated with it.
     private float measureFitness(){
         // TODO: The second parameter of CVRP.measureCost needs to be automated
-        float cvrpCost = CVRP.measureCost(this, 0.1f);
+        float cvrpCost = CVRP.measureCost(this, operators.getInnerDepotPenalty());
 //        float simplevrpCost = SimpleVRP.measureCost(this);
 //   
 //        if (cvrpCost == simplevrpCost){
@@ -324,7 +331,7 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
         for (int i=0; i<genes.length;i++){
             newGenes[i]=genes[i];
         }
-        Chromosome newChromosome = new Chromosome(newGenes, costMatrix, nrVehicles, nrNodes,  fitness, vehiclesCosts);
+        Chromosome newChromosome = new Chromosome(newGenes, costMatrix, nrVehicles, nrNodes,  fitness, vehiclesCosts, operators);
         
         return newChromosome;
     }
@@ -422,4 +429,9 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
     public int getNrFitnessEvaluations() {
         return nrFitnessEvaluations;
     }
+
+    public OperatorsAndParameters getOperators() {
+        return operators;
+    }
+
 }

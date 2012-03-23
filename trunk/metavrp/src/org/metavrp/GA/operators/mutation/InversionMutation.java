@@ -25,6 +25,7 @@ public class InversionMutation{
      * In Asymmetric problems this can make a big perturbation on the solution.
      */
     public static Chromosome inversionMutation(float probability, Chromosome genes) {
+//System.out.println("Invertion Mutation with probability: "+probability);
         // For each gene
         for (Gene geneA:genes.getGenes()){
             // If we should do it...

@@ -18,6 +18,7 @@ public class Selection {
      * Attention! It returns a copy of the best element, not a pointer.
      */
     public static Chromosome tournamentSelection(int n, Population pop) {
+//System.out.println("Tournament selection with parameter: "+n);
         Chromosome[] tournamentPool = new Chromosome[n]; //Create a tournament pool
         Chromosome[] chromosomes = pop.getChromosomes();
         for (int i=0; i<n; i++){
