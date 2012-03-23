@@ -28,7 +28,7 @@ public class PMX {
      * crossover between parents.
      */
     public static Chromosome[] PMX (Chromosome[] parents, float probability){
-        
+//System.out.println("PMX crossover with probability: "+probability);
         // Warning of out of scope probability
         if (probability < 0 || probability >1){
             System.out.println("[WARNING] Probability of PMX crossover is "+probability+
