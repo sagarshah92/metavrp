@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import org.metavrp.GA.support.*;
 import org.metavrp.GA.*;
+import org.metavrp.GA.executors.ChristofidesEilon1971;
 import org.metavrp.GA.executors.GoldenWasilKellyChao1998;
 import org.metavrp.GA.operators.OperatorsAndParameters;
 
@@ -24,16 +25,27 @@ public class VRPMain {
      */
     public static void main(String[] args) {
 
+        int nrRuns=50;
+        
+        // Run ChristofidesEilon1971 instances
+        for (int i=1; i<=nrRuns; i++){
+            ChristofidesEilon1971 run = new ChristofidesEilon1971(i);
+            run.run();
+        }
 
         // Run GoldenWasilKellyChao1998 instances
-        GoldenWasilKellyChao1998 run = new GoldenWasilKellyChao1998(1);
+//        for (int i=1; i<=nrRuns; i++){
+//            GoldenWasilKellyChao1998 run = new GoldenWasilKellyChao1998(i);
+//            run.run();
+//        }
+        
 
         // Run a random problem
 //        VRPGARun run = runRandomProblem(1);
 
         // Start in a new thread
-        Thread vrpThread = new Thread(run, "metaVRP");
-        vrpThread.start();
+//        Thread vrpThread = new Thread(run, "metaVRP");
+//        vrpThread.start();
 
 
     }

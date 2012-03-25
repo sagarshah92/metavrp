@@ -22,6 +22,9 @@ import org.metavrp.VRP.CostMatrix;
 
 public class VRPGARun implements Runnable{
     
+    // TODO: Remove this
+    private int currentWriteCount;
+    
     private String statsFileName;
     private FileWriter statsFileWriter;
     private int run;
@@ -159,7 +162,7 @@ public class VRPGARun implements Runnable{
                 end = System.currentTimeMillis();
                 
                 // Print the population statistics
-                printPopulationStatistics(pop, generation, end - start);
+//                printPopulationStatistics(pop, generation, end - start);
                 
                 // Save stats to log file
                 writeStats(buffer, run, generation, acumulatedNrFitnessEvaluations, bestChromosome.getFitness());
@@ -191,7 +194,7 @@ public class VRPGARun implements Runnable{
                     // we just do selection and mutation
                     if ((i+2)>popSize){
                         Chromosome parent = Selection.tournamentSelection(selectionParam,newPop);
-                        Chromosome child = SwapNextMutation.swapNextMutation(mutationProb, parent);
+                        Chromosome child = SwapMutation.swapMutation(mutationProb, parent);
                         matingPool[i] = child;
                     }
                     
@@ -210,6 +213,8 @@ public class VRPGARun implements Runnable{
                             childs = PMX.PMX(parents,crossoverProb);
                         } else if (crossoverEdge3){
                             childs = Edge3.Edge3(parents,crossoverProb);
+                        } else {
+                            throw new AssertionError("[Error] No suitable Crossover operator found. Please specify a correct Crossover operator.");
                         }
 
                         // 3. Mutation (with a given probability)
@@ -225,6 +230,8 @@ public class VRPGARun implements Runnable{
                         } else if (inversionMutation){
                             childs[0]=InversionMutation.inversionMutation(mutationProb, childs[0]);
                             childs[1]=InversionMutation.inversionMutation(mutationProb, childs[1]);
+                        } else {
+                            throw new AssertionError("[Error] No suitable Mutation operator found. Please specify a correct Mutation operator.");
                         }
 
                         matingPool[i]=childs[0];
@@ -245,7 +252,7 @@ public class VRPGARun implements Runnable{
                     
                 pop = newPop;   // Bye bye old population. Be trash collected!!!
             
-        } while (nrUnimprovedGenerations(generation) < stopValue);
+        } while ((nrUnimprovedGenerations(generation) < stopValue) && (acumulatedNrFitnessEvaluations<(geneList.getSize()*20000)));
         
         System.out.println("The run stopped! No improvement from generation " + bestChromosomeGeneration);
         
@@ -336,20 +343,25 @@ public class VRPGARun implements Runnable{
      * Write the stats to a given file
      */
     public void writeStats(BufferedWriter buffer, int run, int generation, long nrFitnessEvaluations, float bestCost){
-        try{
-            buffer.write(Integer.toString(run));
-            buffer.write(";");
-            buffer.write(Integer.toString(generation));
-            buffer.write(";");
-            buffer.write(Long.toString(nrFitnessEvaluations));
-            buffer.write(";");
-            buffer.write(Float.toString(bestCost));
-            buffer.write(";");
-            buffer.newLine();
-            buffer.flush();
-        }catch (Exception ex){
-            ex.printStackTrace();
-        }
+        int nrFitnessRounded = Math.round(nrFitnessEvaluations/100);
+        if(nrFitnessRounded>currentWriteCount){
+            currentWriteCount=nrFitnessRounded;
+            try{
+                buffer.write(Integer.toString(run));
+                buffer.write(";");
+                buffer.write(Integer.toString(generation));
+                buffer.write(";");
+                buffer.write(Long.toString(nrFitnessEvaluations));
+                buffer.write(";");
+                buffer.write(Float.toString(bestCost));
+                buffer.write(";");
+                buffer.newLine();
+                buffer.flush();
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
+            }
+        
     }
     
     public void writeBestElement(String statsFileName, int run, int generation,long fitnessEvals, float bestCost){
