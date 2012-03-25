@@ -23,6 +23,8 @@ public class GoldenWasilKellyChao1998 implements Runnable{
     private int nrRun;
     private int nrRuns;
     
+    int maxNrGenerationsWtImprovement=484;
+    
     private OperatorsAndParameters operators;   // GA operators
 
     private int nrVehicles;             // The number of vehicles
@@ -38,6 +40,9 @@ public class GoldenWasilKellyChao1998 implements Runnable{
 
     public GoldenWasilKellyChao1998(int runs) {
         this.nrRuns=runs;
+        
+        // Create the operators and parameters
+        operators = new OperatorsAndParameters();
     }
     
     
@@ -46,14 +51,47 @@ public class GoldenWasilKellyChao1998 implements Runnable{
      */
     @Override
     public void run(){
+        int nrGenes=502;
+        if (nrRuns<=10){
+            maxNrGenerationsWtImprovement=50*10;
+            operators.setPopulationSize(502/10);
+            VRPGARun run = createInitialParameters(nrRuns);
+            run.run();
+        } else if(nrRuns<=20){
+            maxNrGenerationsWtImprovement=50*2;
+            operators.setPopulationSize(502/2);
+            VRPGARun run = createInitialParameters(nrRuns);
+            run.run();
+        } else if(nrRuns<=30){
+            maxNrGenerationsWtImprovement=50;
+            operators.setPopulationSize(502);
+            VRPGARun run = createInitialParameters(nrRuns);
+            run.run();
+        } else if(nrRuns<=40){
+            maxNrGenerationsWtImprovement=50/2;
+            operators.setPopulationSize(502*2);
+            VRPGARun run = createInitialParameters(nrRuns);
+            run.run();
+        } else if(nrRuns<=50){
+            maxNrGenerationsWtImprovement=50/10;
+            operators.setPopulationSize(502*10);
+            VRPGARun run = createInitialParameters(nrRuns);
+            run.run();
+        } else if(nrRuns<=60){
+            maxNrGenerationsWtImprovement=60/20;
+            operators.setPopulationSize(502*20);
+            VRPGARun run = createInitialParameters(nrRuns);
+            run.run();
+        } 
 
-        for (int i=1;i<=nrRuns;i++){
-            VRPGARun run = createInitialParameters(i);
 
-            // Start in a new thread
-            Thread vrpThread = new Thread(run, "GoldenWasilKellyChao1998");
-            vrpThread.start();
-        }
+//        for (int i=1;i<=nrRuns;i++){
+//            VRPGARun run = createInitialParameters(i);
+//
+//            // Start in a new thread
+//            Thread vrpThread = new Thread(run, "GoldenWasilKellyChao1998");
+//            vrpThread.start();
+//        }
     }
     
     
@@ -69,12 +107,10 @@ public class GoldenWasilKellyChao1998 implements Runnable{
         vehicleCapacity=1000;
         nrCustomers=483;
         
-        int maxNrGenerationsWtImprovement=100;  // The maximum number of generations without improvement
+//        int maxNrGenerationsWtImprovement=nrCustomers;  // The maximum number of generations without improvement
         
-        // Create the operators and parameters
-        operators = new OperatorsAndParameters();
         // Population
-        operators.setPopulationSize(nrCustomers+1);       // Size of the population
+//        operators.setPopulationSize(nrCustomers+1);       // Size of the population
         // Selection
         operators.setSelectionOperator("Selection.tournamentSelection");
         operators.setSelectionPercentage(1);
@@ -83,13 +119,13 @@ public class GoldenWasilKellyChao1998 implements Runnable{
         operators.setCrossoverOperator("PMX.PMX");
         operators.setCrossoverProb(0.8f);       // Probability of crossover (0..1)
         // Mutation
-        operators.setMutationOperator("SwapNextMutation.swapNextMutation");
-        operators.setMutationProb(1/(nrCustomers+1));   // Probability of mutation (0..1)
+        operators.setMutationOperator("SwapMutation.swapMutation");
+        operators.setMutationProb(1f/(nrCustomers+1));   // Probability of mutation (0..1)
         // Replacement
         operators.setReplacementOperator("Replacement.populationReplacement");
-        operators.setReplacementElitism(0.1f);  // Use of elitism from 0 (no elitism) to 1 
+        operators.setReplacementElitism(0.05f);  // Use of elitism from 0 (no elitism) to 1 
         // Constraints
-        operators.setInnerDepotPenalty(0.01f);
+        operators.setInnerDepotPenalty(0.05f);
         
         // Create the cost matrix
         costMatrix = new CostMatrix(instanceFileName, true); //Open the cost matrix from a .vrp formatted file

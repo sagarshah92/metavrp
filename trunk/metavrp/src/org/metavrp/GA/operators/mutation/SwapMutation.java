@@ -34,7 +34,7 @@ public class SwapMutation{
                     int randomIndex = Randomizer.randomInt(genes.getLenght());
                     geneB = genes.getGene(randomIndex);
                 } while(geneA==geneB);
-                
+
                 // Swap these genes
                 genes.swapGenes(geneA, geneB);
             }

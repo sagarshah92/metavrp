@@ -68,8 +68,8 @@ parents[1].verifyGenes();
         }
         
         Chromosome[] childs = new Chromosome[2];
-        childs[0] = new Chromosome(child1, dm);
-        childs[1] = new Chromosome(child2, dm);
+//        childs[0] = new Chromosome(child1, dm);
+//        childs[1] = new Chromosome(child2, dm);
         
    
 //System.out.println("Filho:"+childs[0].print());
