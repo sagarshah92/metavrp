@@ -117,10 +117,12 @@ public class Edge3 {
         edgeTable.remove(currentElement);
  
         // Remove any reference to the currentElement gene from the mappings
-        for (Object key:edgeTable.keySet()){
-            ArrayList<Gene> values = (ArrayList)edgeTable.get(key);
-            // Keep removing the (various) ocorrences of the element
-            while (values.remove(currentElement)){}
+        for (Gene gene:currentValues){
+            ArrayList<Gene> values = (ArrayList)edgeTable.get(gene);
+            // Remove the element
+            values.remove(currentElement);
+//            // Keep removing the (various) ocorrences of the element
+//            while (values.remove(currentElement)){}
         }
         
         // Return the current element's values
@@ -189,4 +191,4 @@ public class Edge3 {
         return entrySet[randomIndex];
     }
     
-}   // End of class definition
+}   

@@ -2,18 +2,20 @@
 package org.metavrp.GA;
 
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.util.Random;
-import org.metavrp.GA.operators.*;
-import org.metavrp.GA.operators.crossover.*;
+import org.metavrp.GA.operators.OperatorsAndParameters;
+import org.metavrp.GA.operators.Replacement;
+import org.metavrp.GA.operators.Selection;
+import org.metavrp.GA.operators.crossover.Edge3;
+import org.metavrp.GA.operators.crossover.Order1;
+import org.metavrp.GA.operators.crossover.PMX;
 import org.metavrp.GA.operators.mutation.InsertMutation;
 import org.metavrp.GA.operators.mutation.InversionMutation;
 import org.metavrp.GA.operators.mutation.SwapMutation;
 import org.metavrp.GA.operators.mutation.SwapNextMutation;
-import org.metavrp.GA.support.Tours;
+import org.metavrp.phenotype.Tours;
 import org.metavrp.VRP.CostMatrix;
+import org.metavrp.phenotype.CVRPTours;
 
 /**
  *
@@ -24,10 +26,13 @@ public class VRPGARun implements Runnable{
     
     // TODO: Remove this
     private int currentWriteCount;
+    private int statsPeriod=1000;
     
     private String statsFileName;
     private FileWriter statsFileWriter;
     private int run;
+    
+    private String parameterToTest;
             
     // -----------------------
     // Variables for this run
@@ -154,6 +159,9 @@ public class VRPGARun implements Runnable{
         float endAverage = startAverage;
         float endWorst = startWorst;
         
+        // Save the stats of the first generation to log file
+        writeStats(parameterToTest, buffer, run, generation, acumulatedNrFitnessEvaluations, endBest);
+        
         Population newPop = pop;
         long end; 
         
@@ -165,8 +173,23 @@ public class VRPGARun implements Runnable{
 //                printPopulationStatistics(pop, generation, end - start);
                 
                 // Save stats to log file
-                writeStats(buffer, run, generation, acumulatedNrFitnessEvaluations, bestChromosome.getFitness());
-                
+                writeStatsPeriod(parameterToTest, buffer, run, generation, acumulatedNrFitnessEvaluations, bestChromosome.getFitness(), statsPeriod);
+// TODO: look at this!
+//if(pop.getBestChromosome().getFitness() != bestChromosome.getFitness() || bestChromosome.getFitness() != pop.getBestFitness()){
+//    float f1 = pop.getBestChromosome().getFitness();
+//    float f2 = pop.getBestFitness();
+//    float f3 = bestChromosome.getFitness();
+//    Tours toursBestChromosome = new Tours(bestChromosome);
+//    Tours toursPopBestChromosome= new Tours(pop.getBestChromosome());
+//    System.out.println("\n\n"+toursBestChromosome.toString());
+//    System.out.println("\n\n"+toursPopBestChromosome.toString());
+//    toursBestChromosome.print();
+//    System.out.println("\n\n");
+//    toursPopBestChromosome.print();
+//    System.out.println("\n\n");
+//    float abc = 0;
+//}
+         
                 // Reset the number of fitness evaluations
                 pop.resetNrFitnessEvaluations();
                 
@@ -251,7 +274,8 @@ public class VRPGARun implements Runnable{
                 acumulatedNrFitnessEvaluations += newPop.getNrFitnessEvaluations();  
                     
                 pop = newPop;   // Bye bye old population. Be trash collected!!!
-            
+                
+        //TODO: build a mating pool of size popSize*(1-elitism)
         } while ((nrUnimprovedGenerations(generation) < stopValue) && (acumulatedNrFitnessEvaluations<(geneList.getSize()*20000)));
         
         System.out.println("The run stopped! No improvement from generation " + bestChromosomeGeneration);
@@ -262,13 +286,15 @@ public class VRPGARun implements Runnable{
         
         // Print the best element
         System.out.println("\nBest solution:" + pop.getTop(1)[0].toString());
+        System.out.println("Fitness: "+pop.getTop(1)[0].getFitness());
+        calculaSolucao(pop.getTop(1)[0]);
         
         endBest = pop.getBestFitness();
         endAverage = pop.getAverageFitness();
         endWorst = pop.getWorstFitness();
         
         // Save stats to log file
-        writeStats(buffer, run, generation, acumulatedNrFitnessEvaluations, endBest);
+        writeStats(parameterToTest, buffer, run, generation, acumulatedNrFitnessEvaluations, bestChromosome.getFitness());
         // Close the file
         closeFile(statsFileWriter);
         // Save just the best element
@@ -279,6 +305,33 @@ public class VRPGARun implements Runnable{
         System.out.println("Improvement of the worst element, on this run: "+ ((startWorst-endWorst)/startWorst));
         System.out.println("Average number of fitness evaluations: "+ (acumulatedNrFitnessEvaluations/generation));
         System.out.println("Total number of fitness evaluations: "+acumulatedNrFitnessEvaluations);
+    }
+    
+    public void calculaSolucao(Chromosome chr){
+        System.out.println("\n\nMelhor elemento por pop: ");
+        System.out.println(pop.getBestChromosome().toString());
+        System.out.println(pop.getBestChromosome().getFitness());
+        System.out.println(pop.getBestFitness());
+        
+        System.out.println("\nMelhor elemento por bestChromosome: ");
+        System.out.println(bestChromosome.toString());
+        System.out.println(bestChromosome.getFitness());
+        
+//        System.out.println("\nCálculo da solução: ");
+        Gene[] genes = chr.getGenes();
+        float custoTotal=0;
+        for (int i=0; i<genes.length;i++){
+            Gene gene1 = chr.getGene(i);
+            Gene gene2 = chr.getGeneAfter(i);
+            float custo = costMatrix.getCost(gene1.getNode(), gene2.getNode());
+//            System.out.println("Distância de "+gene1.toString()+" a "+gene2.toString()+"="+custo);
+            custoTotal += custo;
+        }
+        System.out.println("\nSoma total dos custos:"+custoTotal);
+
+        System.out.println("\nAgora os tours:");
+        CVRPTours tours = new CVRPTours(bestChromosome);
+        tours.getTours().print();
     }
     
     
@@ -301,7 +354,7 @@ public class VRPGARun implements Runnable{
      * of the previous populations, keep the first. Its the best of the entire run.
      */
     private void keepBestChromosome(Population pop, int generation){
-        if (pop.getBestChromosome().getFitness() < bestChromosome.getFitness()){
+        if (pop.getBestFitness() < bestChromosome.getFitness()){
             this.bestChromosome = pop.getBestChromosome();
             this.bestChromosomeGeneration = generation;
             this.bestChromosomeNrFitnessEvaluations = acumulatedNrFitnessEvaluations;
@@ -342,11 +395,35 @@ public class VRPGARun implements Runnable{
     /*
      * Write the stats to a given file
      */
-    public void writeStats(BufferedWriter buffer, int run, int generation, long nrFitnessEvaluations, float bestCost){
-        int nrFitnessRounded = Math.round(nrFitnessEvaluations/100);
+    public void writeStats(String parameter,BufferedWriter buffer, int run, int generation, long nrFitnessEvaluations, float bestCost){
+            try{
+                buffer.write(parameter);
+                buffer.write(";");
+                buffer.write(Integer.toString(run));
+                buffer.write(";");
+                buffer.write(Integer.toString(generation));
+                buffer.write(";");
+                buffer.write(Long.toString(nrFitnessEvaluations));
+                buffer.write(";");
+                buffer.write(Float.toString(bestCost));
+                buffer.write(";");
+                buffer.newLine();
+                buffer.flush();
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
+    }
+    
+    /*
+     * Write the stats to a given file if the acumulated number of fitness evaluations is bigger than a period
+     */
+    public void writeStatsPeriod(String parameter, BufferedWriter buffer, int run, int generation, long nrFitnessEvaluations, float bestCost, int period){
+        int nrFitnessRounded = Math.round(nrFitnessEvaluations/period);
         if(nrFitnessRounded>currentWriteCount){
             currentWriteCount=nrFitnessRounded;
             try{
+                buffer.write(parameter);
+                buffer.write(";");
                 buffer.write(Integer.toString(run));
                 buffer.write(";");
                 buffer.write(Integer.toString(generation));
@@ -404,6 +481,14 @@ public class VRPGARun implements Runnable{
     // Return the generation number
     public int getGeneration(){
         return this.generation;
+    }
+
+    public void setParameterToTest(String parameterToTest) {
+        this.parameterToTest = parameterToTest;
+    }
+
+    public void setStatsPeriod(int statsPeriod) {
+        this.statsPeriod = statsPeriod;
     }
     
 }

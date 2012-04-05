@@ -1,4 +1,4 @@
-
+ 
 package org.metavrp.GA.executors;
 
 import java.awt.geom.Point2D;
@@ -17,10 +17,9 @@ import org.metavrp.VRP.Vehicle;
  */
 public class ChristofidesEilon1971 implements Runnable{
     
-    private int nrRun;
-    private int nrRuns;
+    private int maxNrGenerationsWtImprovement;
     
-    int maxNrGenerationsWtImprovement;
+    private String parameterToTest="undefined";
     
     private OperatorsAndParameters operators;   // GA operators
 
@@ -29,17 +28,21 @@ public class ChristofidesEilon1971 implements Runnable{
     private float[] customerDemand;     // The customer's demand
     private int nrCustomers;            // The number of customers (nodes except depot)
     
+    private int nrNodes;                // The number of nodes (nrCustomers + nrVehicles)
+    
     private GeneList geneList;          // Object with the genes (vehicles and customers)
     private CostMatrix costMatrix;      // Object with the costs between nodes
     
     File instanceFile = null;           // The file with the instance
     File statsFile = null;              // File to save the desired statistics
 
-    public ChristofidesEilon1971(int runs) {
-        this.nrRuns=runs;
+    public ChristofidesEilon1971() {
         
         // Create the operators and parameters
         operators = new OperatorsAndParameters();
+        
+        // Change the initial parameters to suit this problem
+        createInitialParameters();
     }
     
     
@@ -48,16 +51,98 @@ public class ChristofidesEilon1971 implements Runnable{
      */
     @Override
     public void run(){
+        
+//        VRPGARun run = createInitialParameters(i);
+//
+//        // Start in a new thread
+//        Thread vrpThread = new Thread(run, "GoldenWasilKellyChao1998");
+//        vrpThread.start();
+        
+    }
+    
+    /* 
+     * Runs a given instance
+     */
+    public void run(String fileName){
+        
+        VRPGARun run = createRunner(1, fileName);
+        run.run();
 
-        // Test different population sizes
-//        populationTest();
+//        // Start in a new thread
+//        Thread vrpThread = new Thread(run, "GoldenWasilKellyChao1998");
+//        vrpThread.start();
         
-        //Test different tournament sizes
-//        tournamentTest();
+    }
+    
+    /*
+     * Runs tests on this instance
+     */
+
+    public void testParameters(int nrRuns, int op, String fileName){
         
-        // Test different crossover operators
-        crossoverOperatorTest();
+        System.out.println("Running ChristofidesEilon1971");
+                
+        if(op==1){
+            // Test different population sizes
+            parameterToTest="Population";
+            populationTest(nrRuns, fileName);
+        }
         
+        if(op==2){
+            //Test different tournament sizes
+            parameterToTest="TournamentSize";
+            tournamentTest(nrRuns, fileName);
+        }
+        
+        if(op==3){
+            // Test different crossover operators
+            parameterToTest="CrossoverOperator";
+            crossoverOperatorTest(nrRuns, fileName);
+        }
+        
+        if(op==4){
+            // Test various crossover probabilities
+            parameterToTest="CrossoverProbabilities";
+            crossoverProbabilityTest(nrRuns, fileName);
+        }
+        
+        if(op==5){
+            // Test the mutation operators
+            parameterToTest="MutationOperator";
+            testMutationOperators(nrRuns, fileName);
+        }
+        
+        if(op==6){
+            // Test the mutation probabilities
+            parameterToTest="MutationProbabilities";
+            testMutationProb(nrRuns, fileName);
+        }
+        
+        if(op==7){
+            // Test the elitism effect
+            parameterToTest="Elitism";
+            testElitism(nrRuns, fileName);
+        }
+        
+        if(op==8){
+            // Test inner depot penalty
+            parameterToTest="InnerDepotPenalty";
+            testInnerDepotPenalty(nrRuns, fileName);
+        }
+        
+        if(op==10){
+            parameterToTest="1VehicleNoInnerDepotPenalty";
+            for (int i=1; i<=nrRuns; i++){
+                VRPGARun run = createRunner(i, fileName);
+                run.run();
+            }
+        }
+        
+        if(op==0){
+            // Test different population sizes
+            parameterToTest="None";
+            populationTest(nrRuns, fileName);
+        }
         
 //        for (int i=1;i<=nrRuns;i++){
 //            VRPGARun run = createInitialParameters(i);
@@ -67,105 +152,269 @@ public class ChristofidesEilon1971 implements Runnable{
 //            vrpThread.start();
 //        }
         
-        System.out.println("Run nº "+nrRuns);
     }
     
-    public void populationTest(){
+    public void populationTest(int nrRuns, String fileName){
         int nrGenes=76+14;
-        if (nrRuns<=20){
-            operators.setPopulationSize(nrGenes/10);
-            VRPGARun run = createInitialParameters(nrRuns);
+        for (int i=1; i<=nrRuns; i++){
+            operators.setPopulationSize(10);
             operators.setReplacementElitism(0.12f);
+            VRPGARun run = createRunner(i, fileName);
             run.run();
-        } else if(nrRuns<=40){
+        }
+        for (int i=1; i<=nrRuns; i++){
             operators.setPopulationSize((nrGenes/2)+1);
-            VRPGARun run = createInitialParameters(nrRuns);
-            run.run();
-        } else if(nrRuns<=60){
-            operators.setPopulationSize(nrGenes);
-            VRPGARun run = createInitialParameters(nrRuns);
-            run.run();
-        } else if(nrRuns<=80){
-            operators.setPopulationSize(nrGenes*2);
-            VRPGARun run = createInitialParameters(nrRuns);
-            run.run();
-        } else if(nrRuns<=100){
-            operators.setPopulationSize(nrGenes*10);
-            VRPGARun run = createInitialParameters(nrRuns);
+            operators.setReplacementElitism(0.05f);
+            VRPGARun run = createRunner(i, fileName);
             run.run();
         } 
+        for (int i=1; i<=nrRuns; i++){
+            operators.setPopulationSize(nrGenes);
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        } 
+        for (int i=1; i<=nrRuns; i++){
+            operators.setPopulationSize(nrGenes*2);
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        }
+        for (int i=1; i<=nrRuns; i++){
+            operators.setPopulationSize(nrGenes*10);
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        }
     }
     
-    public void tournamentTest(){
-        if (nrRuns<=20){
-            VRPGARun run = createInitialParameters(nrRuns);
+    public void tournamentTest(int nrRuns, String fileName){
+        createInitialParameters();
+        for (int i=1; i<=nrRuns; i++){
             operators.setSelectionParam(2);
+            VRPGARun run = createRunner(i, fileName);
             run.run();
-        } else if(nrRuns<=40){
-            VRPGARun run = createInitialParameters(nrRuns);
+        } 
+        for (int i=1; i<=nrRuns; i++){
             operators.setSelectionParam(3);
+            VRPGARun run = createRunner(i, fileName);
             run.run();
-        } else if(nrRuns<=60){
-            VRPGARun run = createInitialParameters(nrRuns);
+        } 
+        for (int i=1; i<=nrRuns; i++){
             operators.setSelectionParam(5);
+            VRPGARun run = createRunner(i, fileName);
             run.run();
-        } else if(nrRuns<=80){
-            VRPGARun run = createInitialParameters(nrRuns);
+        } 
+        for (int i=1; i<=nrRuns; i++){
             operators.setSelectionParam(10);
+            VRPGARun run = createRunner(i, fileName);
             run.run();
         }
     }
     
-    public void crossoverOperatorTest(){
-        if (nrRuns<=20){
-            VRPGARun run = createInitialParameters(nrRuns);
+    public void crossoverOperatorTest(int nrRuns, String fileName){
+        createInitialParameters();
+        for (int i=1; i<=nrRuns; i++){
             operators.setCrossoverOperator("Order1.Order1");
+            VRPGARun run = createRunner(i, fileName);
             run.run();
-        } else if(nrRuns<=40){
-            VRPGARun run = createInitialParameters(nrRuns);
+        } 
+        for (int i=1; i<=nrRuns; i++){
             operators.setCrossoverOperator("PMX.PMX");
+            VRPGARun run = createRunner(i, fileName);
             run.run();
-        } else if(nrRuns<=60){
-            VRPGARun run = createInitialParameters(nrRuns);
+        } 
+        for (int i=1; i<=nrRuns; i++){
             operators.setCrossoverOperator("Edge3.Edge3");
+            VRPGARun run = createRunner(i, fileName);
             run.run();
         }
     }
     
+    public void crossoverProbabilityTest(int nrRuns, String fileName){
+        createInitialParameters();
+        for (int i=1; i<=nrRuns; i++){
+            operators.setCrossoverProb(1f);
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        } 
+        for (int i=1; i<=nrRuns; i++){
+            operators.setCrossoverProb(0.9f);
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        } 
+        for (int i=1; i<=nrRuns; i++){
+            operators.setCrossoverProb(0.8f);
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        } 
+        for (int i=1; i<=nrRuns; i++){
+            operators.setCrossoverProb(0.5f);
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        } 
+        for (int i=1; i<=nrRuns; i++){
+            operators.setCrossoverProb(0.0f);
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        }
+    }
     
-    public VRPGARun createInitialParameters(int nrRun){
-                
-        instanceFile = new File("instances\\vrp\\ChristofidesEilon1971\\Instances\\Vrp-Set-E\\E-n76-k14.vrp");
-        String instanceFileName = instanceFile.getAbsolutePath();
-        
-        statsFile = new File("stats\\ChristofidesEilon1971\\E-n76-k14.stats");
-        String statsFileName = statsFile.getAbsolutePath();
+    public void testMutationOperators(int nrRuns, String fileName){
+        createInitialParameters();
+        for (int i=1; i<=nrRuns; i++){
+            operators.setMutationOperator("SwapNextMutation.swapNextMutation");
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        } 
+        for (int i=1; i<=nrRuns; i++){
+            operators.setMutationOperator("SwapMutation.swapMutation");
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        } 
+        for (int i=1; i<=nrRuns; i++){
+            operators.setMutationOperator("InsertMutation.insertMutation");
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        } 
+        for (int i=1; i<=nrRuns; i++){
+            operators.setMutationOperator("InversionMutation.inversionMutation");
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        }
+    }
+    
+    public void testMutationProb(int nrRuns, String fileName){
+        createInitialParameters();
+        for (int i=1; i<=nrRuns; i++){
+            operators.setMutationProb(10f/89);
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        } 
+        for (int i=1; i<=nrRuns; i++){
+            operators.setMutationProb(1f/89);
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        } 
+        for (int i=1; i<=nrRuns; i++){
+            operators.setMutationProb(1f/890);
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        } 
+        for (int i=1; i<=nrRuns; i++){
+            operators.setMutationProb(0f);
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        }
+    }
+
+    public void testElitism(int nrRuns, String fileName){
+        createInitialParameters();
+        for (int i=1; i<=nrRuns; i++){
+            operators.setReplacementElitism(0.0f);
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        } 
+        for (int i=1; i<=nrRuns; i++){
+            operators.setReplacementElitism(1f/90);
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        } 
+        for (int i=1; i<=nrRuns; i++){
+            operators.setReplacementElitism(0.01f);
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        } 
+        for (int i=1; i<=nrRuns; i++){
+            operators.setReplacementElitism(0.05f);
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        }
+        for (int i=1; i<=nrRuns; i++){
+            operators.setReplacementElitism(0.1f);
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        }
+        for (int i=1; i<=nrRuns; i++){
+            operators.setReplacementElitism(0.2f);
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        }
+        for (int i=1; i<=nrRuns; i++){
+            operators.setReplacementElitism(0.3f);
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        }
+        for (int i=1; i<=nrRuns; i++){
+            operators.setReplacementElitism(0.5f);
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        }
+    }
+    
+    public void testInnerDepotPenalty(int nrRuns, String fileName){
+        createInitialParameters();
+        for (int i=1; i<=nrRuns; i++){
+            operators.setInnerDepotPenalty(0.0f);
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        } 
+        for (int i=1; i<=nrRuns; i++){
+            operators.setInnerDepotPenalty(0.05f);
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        } 
+        for (int i=1; i<=nrRuns; i++){
+            operators.setInnerDepotPenalty(0.1f);
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        } 
+        for (int i=1; i<=nrRuns; i++){
+            operators.setInnerDepotPenalty(1f);
+            VRPGARun run = createRunner(i, fileName);
+            run.run();
+        }
+    }
+
+    
+    public final void createInitialParameters(){
         
         nrVehicles=14;
         vehicleCapacity=100;
         nrCustomers=75;
         
-        int nrNodes = nrCustomers + nrVehicles + 1;     // +1 for parity reasons
+        nrNodes = nrCustomers + nrVehicles;
         
         maxNrGenerationsWtImprovement=Integer.MAX_VALUE;  // The maximum number of generations without improvement
         
         // Population
-        operators.setPopulationSize(nrNodes);       // Size of the population
+        operators.setPopulationSize(10);       // Size of the population
         // Selection
         operators.setSelectionOperator("Selection.tournamentSelection");
         operators.setSelectionPercentage(1);
         operators.setSelectionParam(2);
         // Crossover
-        operators.setCrossoverOperator("PMX.PMX");
-        operators.setCrossoverProb(0.8f);       // Probability of crossover (0..1)
+        operators.setCrossoverOperator("Edge3.Edge3");
+        operators.setCrossoverProb(1.0f);       // Probability of crossover (0..1)
         // Mutation
         operators.setMutationOperator("SwapMutation.swapMutation");
         operators.setMutationProb(1f/nrNodes);   // Probability of mutation (0..1)
         // Replacement
         operators.setReplacementOperator("Replacement.populationReplacement");
-        operators.setReplacementElitism(0.05f);  // Use of elitism from 0 (no elitism) to 1 
+        operators.setReplacementElitism(0.1f);  // Use of elitism from 0 (no elitism) to 1 
         // Constraints
-        operators.setInnerDepotPenalty(0.05f);
+        operators.setInnerDepotPenalty(0.1f);
+
+    }
+    
+    
+    public VRPGARun createRunner(int nrRun, String fileName){
+        
+System.out.println("Run nº "+nrRun);
+
+        instanceFile = new File("instances\\vrp\\ChristofidesEilon1971\\Instances\\Vrp-Set-E\\"+fileName);
+        String instanceFileName = instanceFile.getAbsolutePath();
+        
+        statsFile = new File("stats\\ChristofidesEilon1971\\n."+parameterToTest+"."+fileName+".stats");
+        String statsFileName = statsFile.getAbsolutePath();
+        
         
         // Create the cost matrix
         costMatrix = new CostMatrix(getVRPCostMatrix(instanceFileName, nrCustomers)); // Create the CostMatrix object
@@ -176,6 +425,12 @@ public class ChristofidesEilon1971 implements Runnable{
         
         // The runner
         VRPGARun run = new VRPGARun(operators, geneList, costMatrix, statsFileName, nrRun, maxNrGenerationsWtImprovement);
+        
+        // What's the parameter to test?
+        run.setParameterToTest(parameterToTest);
+        
+        // What's the period at which we should log the best element of the population?
+        run.setStatsPeriod(1000);
         
         return run;
     }
@@ -303,6 +558,18 @@ public class ChristofidesEilon1971 implements Runnable{
 
         return new GeneList(customers, vehicles);        
 
+    }
+
+    public void setNrCustomers(int nrCustomers) {
+        this.nrCustomers = nrCustomers;
+    }
+
+    public void setNrVehicles(int nrVehicles) {
+        this.nrVehicles = nrVehicles;
+    }
+
+    public void setVehicleCapacity(int vehicleCapacity) {
+        this.vehicleCapacity = vehicleCapacity;
     }
 
 }
