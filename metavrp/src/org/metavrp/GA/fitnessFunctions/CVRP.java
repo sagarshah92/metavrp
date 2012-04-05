@@ -3,6 +3,7 @@ package org.metavrp.GA.fitnessFunctions;
 
 import org.metavrp.GA.Chromosome;
 import org.metavrp.GA.Gene;
+import org.metavrp.phenotype.CVRPTours;
 
 /**
  *
@@ -33,8 +34,8 @@ public class CVRP {
     // TODO: Add the objective that each vehicle visits the same customers or gets 
     // almost the same cost.
     public static float measureCost(Chromosome chr, float innerDepotPenalty){
-        
-        int nVehicles = chr.countVehicles();            // Count the number of vehicles
+
+        int nVehicles = chr.getNrVehicles();            // Get the number of vehicles
         float[] vCosts = new float[nVehicles];          // The fitness (routing costs) of the vehicles
         int indexCurrentVehicle = 0;                    // The number of the current vehicle
         
@@ -42,8 +43,7 @@ public class CVRP {
         Gene firstVehicle = chr.getFirstVehicle();      // The first vehicle
         Gene currentVehicle = firstVehicle;             // the current vehicle
         float currentVehicleCapacity = currentVehicle.getSize();// The capacity of the current vehicle
-        
-        float[] vLoad = new float[nVehicles];           // The load of the vehicles
+        float currentVehicleLoad = 0;                   // Load of the current vehicle
         
         Gene currentGene = firstVehicle;                // The current gene
         Gene nextGene = chr.getGeneAfter(firstVehicle); // The next gene
@@ -63,19 +63,20 @@ public class CVRP {
                 if(currentGene.getIsVehicle()){
                     vCosts[indexCurrentVehicle] = 0;
                 } else {
-                    // If the current gene is a node, sum the cost
+                    // If the current gene is a node, sum the cost to return to his depot
                     vCosts[indexCurrentVehicle] += chr.getCost(currentGene, currentVehicle);
                 }
                 // Move to the next vehicle
                 indexCurrentVehicle++;
                 currentVehicle = nextGene;
                 currentVehicleCapacity = currentVehicle.getSize();
+                currentVehicleLoad = 0;
             } else {
                 // If the next gene is a customer, update the current vehicle's cost
                 
                 // Measure if there will be available capacity on the vehicle to 
                 // load the demand of the customer
-                float futureLoad = vLoad[indexCurrentVehicle] + nextGene.getSize();
+                float futureLoad = currentVehicleLoad + nextGene.getSize();
                 
                 // If there's not enought capacity to visit the next customer,
                 // go to the depot and return to visit the customer.
@@ -84,14 +85,14 @@ public class CVRP {
                     vCosts[indexCurrentVehicle] += chr.getCost(currentGene, currentVehicle);
                     // Sum the cost to com back from the depot to the next customer
                     vCosts[indexCurrentVehicle] += chr.getCost(currentVehicle, nextGene);
-                    // Reset the load
-                    vLoad[indexCurrentVehicle] = 0;
+                    // Reset the load to next gene demand
+                    currentVehicleLoad = nextGene.getSize();
                     // The Depot was used inside a tour. Update the variable
                     nrDepotsInsideTour++;
                 } else {
                     // Else go to the next customer and update the vehicle's load
                     vCosts[indexCurrentVehicle] += chr.getCost(currentGene, nextGene);
-                    vLoad[indexCurrentVehicle] = futureLoad;
+                    currentVehicleLoad = futureLoad;
                 }
             }
             
@@ -111,7 +112,7 @@ public class CVRP {
         
         // Increment the number of fitness evaluations
         chr.incrementFitnessEvaluations();
-        
+                
         // Penalise the global cost by the number of times that the vehicles had to
         // go to the depot inside tours
         globalCost *= (1 + nrDepotsInsideTour * innerDepotPenalty);

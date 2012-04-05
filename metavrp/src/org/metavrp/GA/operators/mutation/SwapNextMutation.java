@@ -23,7 +23,6 @@ public class SwapNextMutation{
      * Preserves most of the adjacency information (only 2 links are broken).
      */
     public static Chromosome swapNextMutation(float probability, Chromosome genes) {
-//System.out.println("Swap Next Mutation with probability: "+probability);        
         // For each gene
         for (Gene gene:genes.getGenes()){
             // If we should do it...

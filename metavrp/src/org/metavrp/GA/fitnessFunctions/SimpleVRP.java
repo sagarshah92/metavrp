@@ -16,7 +16,7 @@ public class SimpleVRP {
     // almost the same cost.
     public static float measureCost(Chromosome chr){
         
-        int nVehicles = chr.countVehicles();            // Count the number of vehicles
+        int nVehicles = chr.getNrVehicles();            // Count the number of vehicles
         float[] vCosts = new float[nVehicles];          // The fitness (routing costs) of the vehicles
         int indexCurrentVehicle = 0;                    // The number of the current vehicle
         

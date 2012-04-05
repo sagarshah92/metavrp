@@ -9,6 +9,7 @@ public class OperatorsAndParameters {
     private int populationSize;         // Size of the population
     
     private String selectionOperator;   // The chosen selection operator
+    // TODO: Maybe remove this parameter
     private float selectionPercentage;  // The selection percentage as a float between 0 and 1
     private int selectionParam;         // Used for the number of elements on the tournament selection
     
@@ -32,9 +33,9 @@ public class OperatorsAndParameters {
         this.selectionOperator = "Selection.tournamentSelection";
         this.selectionPercentage = 1f;
         this.selectionParam = 2;
-        this.crossoverOperator = "Order1.Order1";
+        this.crossoverOperator = "Edge3.Edge3";
         this.crossoverProb = 0.8f;
-        this.mutationOperator = "SwapNextMutation.swapNextMutation";
+        this.mutationOperator = "SwapMutation.swapMutation";
         this.mutationProb = 0.01f;
         this.replacementOperator = "Replacement.populationReplacement";
         this.replacementElitism = 0.1f;

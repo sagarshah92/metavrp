@@ -19,20 +19,11 @@ import org.metavrp.VRP.CostMatrix;
  */
 public class Population implements Cloneable, Comparator<Chromosome>{
 
-    private Chromosome[] chromosomes;
+    private Chromosome[] chromosomes;           // The effective population: an array of chromosomes
 
-    private float bestFitness;          //Best fitness value in the population
-    private float worstFitness;         //Worst fitness value in the population
-    private float averageFitness;       //Average fitness value in the population
-    private float medianFitness;        //The median fitness value in the population
-
-    private int chromosomeLength;       //Size of the chromosomes. Number of genes.
-    private int nrNodes;                //Number of nodes in each chromosome
-    private int nrVehicles;             //Number of vehicles in each chromosome
+    private GeneList geneList;                  // A list of the possible genes (vehicles and nodes)
     
-    private GeneList geneList;          // A list of the possible genes (vehicles and nodes)
-    
-    private CostMatrix costMatrix;      //The (very important) cost matrix
+    private CostMatrix costMatrix;              //The (very important) cost matrix
     
     private OperatorsAndParameters operators;   // The chosen GA's operators and parameters
 
@@ -46,51 +37,36 @@ public class Population implements Cloneable, Comparator<Chromosome>{
     // All vehicles start (and end) from the first node of the cost matrix.
     public Population(int popSize, GeneList geneList, CostMatrix costMatrix, OperatorsAndParameters operators) {
         //Randomly generate the population
-        this.operators = operators;
         this.chromosomes = generateChromosomes(popSize, geneList, costMatrix, operators); 
-        this.chromosomeLength = this.chromosomes[0].getLenght();
-        this.nrNodes = geneList.getNrNodes();
-        this.nrVehicles = geneList.getNrVehicles();
-        fitnessSort();  //Sort the population
         this.geneList=geneList;
         this.costMatrix = costMatrix;
-        this.statistics();
+        this.operators = operators;
+        fitnessSort();  //Sort the population
     }
     
     // The population is given as an array of chromosomes. The rest 
     // (until popSize) is randomly generated.
     // All vehicles start (and end) from the first node of the cost matrix
     public Population(Chromosome[] chromosomes, int popSize, GeneList geneList, CostMatrix costMatrix, OperatorsAndParameters operators) {
-        this.operators = operators;
         this.chromosomes = generateMissingChromosomes(chromosomes, popSize, geneList, costMatrix, operators);
-        this.chromosomeLength = this.chromosomes[0].getLenght();
-        this.nrNodes = geneList.getNrNodes();
-        this.nrVehicles = chromosomes[0].getNrVehicles();
-            if (nrVehicles!=geneList.getNrVehicles())
-                throw new AssertionError("[ERROR] The number of vehicles of the "
-                        + "chromosome is different from the GeneList.");
-        fitnessSort(); //Sort the population
         this.geneList=geneList;
         this.costMatrix = costMatrix;
-        this.statistics();
+        this.operators = operators;
+        verifyNrVehicles(chromosomes[0]);
+        fitnessSort(); //Sort the population
     }
     
     // Not enought? Yet another constructor
     // This time the population is given as two arrays of chromosomes that are merged. 
     // All vehicles start (and end) from the first node of the cost matrix.
     public Population(Chromosome[] newChromosomes, Chromosome[] elitistChromosomes, GeneList geneList, CostMatrix costMatrix, OperatorsAndParameters operators) {
-        this.operators = operators;
         Chromosome[] concatChromosomes = mergeChromosomes(newChromosomes, elitistChromosomes);
         this.chromosomes = concatChromosomes;
-        this.chromosomeLength = this.chromosomes[0].getLenght();
-        this.nrVehicles = concatChromosomes[0].getNrVehicles();
-            if (nrVehicles!=geneList.getNrVehicles())
-                throw new AssertionError("[ERROR] The number of vehicles of the "
-                        + "chromosomes is different from the GeneList.");        
-        fitnessSort(); //Sort the population
-        this.geneList = geneList; 
+        this.geneList = geneList;
         this.costMatrix = costMatrix;
-        this.statistics();
+        this.operators = operators;
+        verifyNrVehicles(chromosomes[0]);
+        fitnessSort(); //Sort the population
     }
     
     
@@ -171,40 +147,6 @@ public class Population implements Cloneable, Comparator<Chromosome>{
     }
     
     
-    // Computes all the statistics
-    public final void statistics(){
-        // First sort the population inversely by cost
-        fitnessSort();  
-        
-        // The best chromosome is the first
-        this.bestFitness=this.chromosomes[0].getFitness();                      
-        
-        // The worst chromosome is the last
-        this.worstFitness=this.chromosomes[chromosomes.length-1].getFitness();  
-        
-        // Average fitness value
-        double totalFitness=0;
-        for (int i=0;i<chromosomes.length;i++){
-            totalFitness+=chromosomes[i].getFitness();
-        }
-        this.averageFitness=(float) totalFitness/chromosomes.length; // The average fitness
-        
-        // Median fitness value
-        //If the number of chromosomes in the population is odd, just return the 
-        //fitness value of the middle chromosome. If it is even, return the average 
-        //of the two middle values.
-        if (chromosomes.length%2!=0){ // Its odd
-            //Return the middle chromosome's fitness value
-            this.medianFitness = chromosomes[chromosomes.length/2].getFitness();
-        }
-        else {  // Its even
-            int topMiddle=(chromosomes.length/2)-1;
-            int bottomMiddle=chromosomes.length/2;
-            this.medianFitness = (chromosomes[topMiddle].getFitness()+chromosomes[bottomMiddle].getFitness())/2;
-        }
-
-    }
-    
     /*
      * Returns the number of times that the Fitness evaluation function was called
      * on this population.
@@ -238,6 +180,7 @@ public class Population implements Cloneable, Comparator<Chromosome>{
     // Measure the improvement of the best fitness value
     public float calcBestImprovement(Population givenPop) {
         float givenBestFitness = givenPop.getBestFitness(); 
+        float bestFitness = this.getBestFitness();
         float ratio = (givenBestFitness-bestFitness) / givenBestFitness;
         return ratio;
     }
@@ -245,6 +188,7 @@ public class Population implements Cloneable, Comparator<Chromosome>{
     // Measure the improvement of the average fitness value
     public float calcAverageImprovement(Population givenPop) {
         float givenAverageFitness = givenPop.getAverageFitness(); 
+        float averageFitness = this.getAverageFitness();
         float ratio = (givenAverageFitness-averageFitness) / givenAverageFitness;
         return ratio;
     }
@@ -252,9 +196,25 @@ public class Population implements Cloneable, Comparator<Chromosome>{
     // Measure the improvement of the worst fitness value
     public float calcWorstImprovement(Population givenPop) {
         float givenWorstFitness = givenPop.getWorstFitness(); 
+        float worstFitness = this.getWorstFitness();
         float ratio = (givenWorstFitness-worstFitness) / givenWorstFitness;
         return ratio;
     } 
+    
+    /*
+     * Verification functions
+     */
+    
+    /*
+     * Based on is the number of vehicles of the chromosome correct?
+     */
+    public final void verifyNrVehicles(Chromosome chr){
+        int nrVehicles = chr.getNrVehicles();
+        if (nrVehicles!=geneList.getNrVehicles()){
+            throw new AssertionError("[ERROR] The number of vehicles of the "
+                + "chromosome is different from the GeneList.");
+        }
+    }
     
 
     /*
@@ -292,16 +252,56 @@ public class Population implements Cloneable, Comparator<Chromosome>{
         return chromosomes;
     }
     
-    public float getAverageFitness() {
-        return averageFitness;
+    public Chromosome[] getSortedChromosomes() {
+        fitnessSort();
+        return chromosomes;
     }
-
+    
+    /*
+     * Returns the lenght of the chromosomes
+     */
+    public int getChromosomeLenght(){
+        return this.chromosomes[0].getLenght();
+    }
+    
     public float getBestFitness() {
-        return bestFitness;
+        fitnessSort();
+        // The best chromosome is the first
+        return this.chromosomes[0].getFitness();
+    }
+    
+    public float getAverageFitness() {
+        fitnessSort();
+        // Average fitness value
+        double totalFitness=0;
+        for (int i=0;i<chromosomes.length;i++){
+            totalFitness+=chromosomes[i].getFitness();
+        }
+        return (float) totalFitness/chromosomes.length; // The average fitness
+    }
+    
+    public float getMedianFitness(){
+        float medianFitness;
+        // Median fitness value
+        //If the number of chromosomes in the population is odd, just return the 
+        //fitness value of the middle chromosome. If it is even, return the average 
+        //of the two middle values.
+        if (chromosomes.length%2!=0){ // Its odd
+            //Return the middle chromosome's fitness value
+            medianFitness = chromosomes[chromosomes.length/2].getFitness();
+        }
+        else {  // Its even
+            int topMiddle=(chromosomes.length/2)-1;
+            int bottomMiddle=chromosomes.length/2;
+            medianFitness = (chromosomes[topMiddle].getFitness()+chromosomes[bottomMiddle].getFitness())/2;
+        }
+        return medianFitness;
     }
 
     public float getWorstFitness() {
-        return worstFitness;
+        fitnessSort();
+        // The worst chromosome is the last
+        return this.chromosomes[chromosomes.length-1].getFitness();  
     }
 
     // The size (number of chromossomes) of the population 
@@ -311,5 +311,13 @@ public class Population implements Cloneable, Comparator<Chromosome>{
 
     public OperatorsAndParameters getOperators() {
         return operators;
+    }
+    
+    public int getNrNodes(){
+        return geneList.getNrNodes();
+    }
+    
+    public int getNrVehicles(){
+        return geneList.getNrVehicles();
     }
 }

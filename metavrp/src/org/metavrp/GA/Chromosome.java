@@ -1,11 +1,13 @@
 package org.metavrp.GA;
 
-import org.metavrp.GA.support.Randomizer;
-import org.metavrp.VRP.CostMatrix;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import org.metavrp.GA.fitnessFunctions.CVRP;
-import org.metavrp.GA.fitnessFunctions.SimpleVRP;
 import org.metavrp.GA.operators.OperatorsAndParameters;
+import org.metavrp.GA.support.Randomizer;
+import org.metavrp.phenotype.Tours;
+import org.metavrp.VRP.CostMatrix;
+import org.metavrp.phenotype.CVRPTours;
 
 /**
  * 
@@ -80,10 +82,6 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
      * or some missing genes.
      * This is just to help the developer certify that his operators (crossover, mutation)
      * are generating correct results.
-     * 
-     * TODO: Verify if each gene has an unique ID.
-     * TODO: This method needs review to verify if each gene on the geneList is used 
-     * once and only once.
      */
     public final void verifyGenes(){
         ArrayList<Gene> genesList = new ArrayList<Gene>(Arrays.asList(genes));
@@ -124,7 +122,7 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
     
     
     // Counts the number of vehicles present in the genes
-    public int countVehicles(){
+    private int countVehicles(){
         int count=0;
         for (int i=0;i<this.genes.length;i++){
             if (this.genes[i].getIsVehicle()){
@@ -143,6 +141,7 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
     private float measureFitness(){
         // TODO: The second parameter of CVRP.measureCost needs to be automated
         float cvrpCost = CVRP.measureCost(this, operators.getInnerDepotPenalty());
+
 //        float simplevrpCost = SimpleVRP.measureCost(this);
 //   
 //        if (cvrpCost == simplevrpCost){
@@ -152,6 +151,7 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
 //        }
         
         // Return the global cost
+
         return cvrpCost;
     }
     
@@ -392,6 +392,9 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
         return genes[i];
     }
     
+    // TODO: remove this method and put a swap or switch method. 
+    // The reason is that with this method we can erroneously increase or decrease the
+    // number of vehicles or customers.
     public void setGene(Gene g, int i){
 //System.out.println("Set gene: "+g.print());        
         this.genes[i]=g;

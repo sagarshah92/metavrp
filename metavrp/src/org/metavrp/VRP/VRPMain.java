@@ -24,21 +24,22 @@ public class VRPMain {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+       
+        ChristofidesEilon1971 run = new ChristofidesEilon1971();
+        run.run("E-n76-k14.vrp");
 
-        int nrRuns=50;
         
-        // Run ChristofidesEilon1971 instances
-        for (int i=1; i<=nrRuns; i++){
-            ChristofidesEilon1971 run = new ChristofidesEilon1971(i);
-            run.run();
-        }
-
+//        int op=3;
+//        int nrRuns = 20;
+//        
+//            ChristofidesEilon1971 run = new ChristofidesEilon1971();
+//            run.testParameters(nrRuns, op, "E-n76-k14.vrp");
+        
         // Run GoldenWasilKellyChao1998 instances
 //        for (int i=1; i<=nrRuns; i++){
 //            GoldenWasilKellyChao1998 run = new GoldenWasilKellyChao1998(i);
 //            run.run();
 //        }
-        
 
         // Run a random problem
 //        VRPGARun run = runRandomProblem(1);
@@ -46,7 +47,6 @@ public class VRPMain {
         // Start in a new thread
 //        Thread vrpThread = new Thread(run, "metaVRP");
 //        vrpThread.start();
-
 
     }
     
@@ -58,7 +58,8 @@ public class VRPMain {
         String fileName = file.getAbsolutePath();
         CostMatrix costMatrix = new CostMatrix(fileName, false);
         
-        File statsFile = new File("stats\\dm171.stats");  
+        File statsFile = new File("stats\\dm171.stats");
+//        File statsFile = new File("stats\\dm7.stats");
         String statsFileName = statsFile.getAbsolutePath();
         
         int nrVehicles=1;
