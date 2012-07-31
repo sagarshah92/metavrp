@@ -1,8 +1,8 @@
 package org.metavrp.trash;
 
-import org.metavrp.GA.Chromosome;
-import org.metavrp.GA.Gene;
-import org.metavrp.GA.support.Randomizer;
+import org.metavrp.algorithm.GA.Chromosome;
+import org.metavrp.algorithm.GA.Gene;
+import org.metavrp.algorithm.GA.support.Randomizer;
 
 /**
  *
