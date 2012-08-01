@@ -1,0 +1,14 @@
+#summary One-sentence summary of this page.
+How to use this library.
+
+= Introduction =
+
+This section tells you how to use this library.
+
+
+= Details =
+
+To solve some instance of the VRP (or TSP) you just need to create 3 objects:
+ 1. Problem
+ 2. Algorithm
+ 3. Solution
