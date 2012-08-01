@@ -2,6 +2,8 @@
 
 This section tells you how to use this library.
 
+_This is an ongoing work, so, please, don't despair if it's incomplete or has lots of errors._
+
 
 = Details =
 
