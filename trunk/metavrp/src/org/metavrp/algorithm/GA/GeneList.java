@@ -15,6 +15,7 @@ import java.util.ArrayList;
  * 
  * @author David Pinheiro
  */
+// TODO: See if this class can be eliminated.
 public class GeneList {
     
     private ArrayList<Gene> genes;      // The actual list: an Array of genes
