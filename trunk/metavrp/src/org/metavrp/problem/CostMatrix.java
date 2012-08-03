@@ -1,6 +1,5 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * 
  */
 package org.metavrp.problem;
 
@@ -12,21 +11,17 @@ import java.util.ArrayList;
 
 /**
  *
- * @author David
+ * @author David Pinheiro
  */
 public class CostMatrix {
     
-    float[][] costMatrix;   // The bi-dimentional array
-    
-    int size;   // The size of the matrix. By size we mean the vertical or horizontal size
-                // (as the matrix needs to be square), which corresponds to the number 
-                // of elements in the matrix.
+    private float[][] costMatrix;   // The bi-dimentional array
     
     
     // Constructor.
     // Given a Cost Matrix as a bi-dimentional float matrix, creates CostMatrix objects
     public CostMatrix(float[][] costMatrix){
-        this.size=costMatrixSize(costMatrix);
+        verifyCostMatrixSize(costMatrix);
         this.costMatrix=costMatrix;
     }
     
@@ -40,13 +35,13 @@ public class CostMatrix {
         } else {
             this.costMatrix = getGvSIGCostMatrix(fileName); 
         }
-        this.size=costMatrixSize(costMatrix);
+        verifyCostMatrixSize(costMatrix);
     }
     
-    //*******************************************************************
-    // Measure the lenght of the chromosome from the cost matrix size
-    //*******************************************************************
-    private static int costMatrixSize (float[][] dm){
+    // The size of the matrix. By size we mean the vertical or horizontal size
+    // (as the matrix needs to be square), which corresponds to the number 
+    // of elements in the matrix.
+    private static int verifyCostMatrixSize (float[][] dm){
         int length=dm.length;
         if (length!=dm[0].length){
             throw new AssertionError("ERROR: The cost matrix is not a square matrix!");
@@ -61,7 +56,7 @@ public class CostMatrix {
 
     // Returns the size of this square matrix
     public int getSize() {
-        return size;
+        return costMatrix.length;
     }
     
 
@@ -264,4 +259,5 @@ public class CostMatrix {
         }
         return nrNodes;
     }
+    
 }
