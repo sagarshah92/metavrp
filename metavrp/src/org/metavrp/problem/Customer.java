@@ -35,9 +35,9 @@ public class Customer implements Gene, Cloneable {
     }
     
     // Constructs a Customer with a given demand
-    public Customer (int id, int v, float demand){
+    public Customer (int id, int node, float demand){
         this.id=id;
-        this.node=v;
+        this.node=node;
         this.demand=demand;
     }
 
