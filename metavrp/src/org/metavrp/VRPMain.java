@@ -13,6 +13,7 @@ import org.metavrp.algorithm.GA.operators.OperatorsAndParameters;
 import org.metavrp.algorithm.GeneticAlgorithm;
 import org.metavrp.problem.CostMatrix;
 import org.metavrp.problem.Customer;
+import org.metavrp.problem.Depot;
 import org.metavrp.problem.Vehicle;
 import org.metavrp.solution.Statistics;
 import org.metavrp.solution.StopCondition;
@@ -71,7 +72,7 @@ public class VRPMain {
          * Main objects
          */
         Problem problem1 = new Problem();
-        GeneticAlgorithm ga = new GeneticAlgorithm();
+        GeneticAlgorithm ga = new GeneticAlgorithm(problem1);
         Solution solution = new Solution();
         
         /* 
@@ -88,22 +89,21 @@ public class VRPMain {
         float customerDemand=1;
         int nrCustomers = costMatrix.getSize()-1; // -1 for the depot
 
-        for (int i=0; i<nrCustomers; i++){
-            problem1.addCustomer(new Customer(i,i+1,customerDemand));
+        for (int i=1; i<=nrCustomers; i++){
+            problem1.addCustomer(new Customer(i,customerDemand));
         }
         
-        // 3. Vehicles
+        // 3. Depots
+        problem1.addDepot(new Depot(0));
+        
+        // 4. Vehicles
         int nrVehicles=1;
         float vehicleCapacity=10;
+        int depotIndex = problem1.getDepots().get(0).getNode();
         
         for (int i=1; i<=nrVehicles; i++){
-            problem1.addVehicle(new Vehicle(-i,0,vehicleCapacity));
+            problem1.addVehicle(new Vehicle(depotIndex,vehicleCapacity));
         }
-        
-        // 4. Depots
-        // TODO:
-        
-
         
         
         /*
@@ -137,48 +137,10 @@ public class VRPMain {
 //        File statsFile = new File("stats\\dm7.stats");
         solution.setStatistics(new Statistics(statsFile));
         
-        
-        
-        // Create the Gene List
-        GeneList geneList = generateRandomGeneList(problem1);
-
         // The runner
-        VRPGARun run = new VRPGARun(operators, geneList, costMatrix, statsFile.getAbsolutePath(), nrRun, maxNrGenerationsWtImprovement);
+        VRPGARun run = new VRPGARun(ga, costMatrix, statsFile.getAbsolutePath(), nrRun, maxNrGenerationsWtImprovement);
         
         return run;
-    }
-    
-    
-    // Given some number of nodes and of vehicles, creates a simple list of genes.
-    // This is a very simplified (and useless?) constructor, as all the vehicles start from node 0.
-    public static GeneList generateRandomGeneList(Problem problem1){
-        int nrNodes = problem1.getCustomers().size();
-        int nrVehicles = problem1.getVehicles().size();
-//        int nrDepots = problem1.getDepots().size();
-//        if (nrDepots > 1) {
-//            System.out.println("Just one depot is supported by now. Only the first depot will be used");
-//        }
-        float demand = problem1.getCustomers().get(1).getDemand();
-        float capacity = problem1.getVehicles().get(0).getCapacity();
-        
-        // Generate the customers array
-        ArrayList<Customer> customers = new ArrayList<Customer>(nrNodes+1);
-        
-        // Add the customers
-        for (int i=1;i<nrNodes+1;i++){
-            customers.add(new Customer(i, i, demand));
-        }
-        
-        // Generate the vehicles array
-        ArrayList<Vehicle> vehicles = new ArrayList<Vehicle>(nrVehicles);
-        
-        // Add the vehicles
-        // All of them start from the first node (node 0)
-        for (int i=0;i<nrVehicles;i++){
-            vehicles.add(new Vehicle(-1-i, 0, capacity));
-        }
-
-        return new GeneList(customers, vehicles);        
     }
 
 }

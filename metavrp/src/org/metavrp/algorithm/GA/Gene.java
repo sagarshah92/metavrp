@@ -25,6 +25,12 @@ public interface Gene {
     // This gene is a vehicle?
     public boolean getIsVehicle();
     
+    // This gene is a customer?
+    public boolean getIsCustomer();
+    
+    // This gene is a depot?
+    public boolean getIsDepot();
+    
     // This genes's size.
     public float getSize();
 

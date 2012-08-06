@@ -4,7 +4,7 @@ package org.metavrp.problem;
 import org.metavrp.algorithm.GA.Gene;
 
 /**
- * Represents a simple Customer
+ * Represents a Customer
  * Implements the interface Gene
  * 
  * @author David Pinheiro
@@ -15,11 +15,6 @@ import org.metavrp.algorithm.GA.Gene;
 
 public class Customer implements Gene, Cloneable {
 
-   // The ID of the customer. 
-   // This ID is positive or zero for customers and negative for vehicles.
-   // It has to be a unique number for each gene (Customer and Vehicle).
-   private int id;
-   
    // Node number
    // Warning! This node should have a direct mapping to the corresponding index of the cost matrix!
    private int node;
@@ -28,15 +23,13 @@ public class Customer implements Gene, Cloneable {
    private float demand;
 
    // Constructs a Customer with no demand. 
-    public Customer (int id, int node){
-        this.id=id;
+    public Customer (int node){
         this.node=node;
         this.demand=0;
     }
     
     // Constructs a Customer with a given demand
-    public Customer (int id, int node, float demand){
-        this.id=id;
+    public Customer (int node, float demand){
         this.node=node;
         this.demand=demand;
     }
@@ -47,7 +40,7 @@ public class Customer implements Gene, Cloneable {
     
     @Override
     public int getId() {
-        return id;
+        return Object.class.hashCode();
     }
     
     @Override
@@ -57,6 +50,16 @@ public class Customer implements Gene, Cloneable {
 
     @Override
     public boolean getIsVehicle(){
+        return false;
+    }
+    
+    @Override
+    public boolean getIsDepot(){
+        return false;
+    }
+    
+    @Override
+    public boolean getIsCustomer(){
         return false;
     }
 
@@ -95,11 +98,10 @@ public class Customer implements Gene, Cloneable {
     // Clone this Customer
     @Override
     public Customer clone(){
-        int clonedId = this.id;
         int clonedNode = this.node;
         float clonedSize = this.demand;
         
-        Customer newCustomer = new Customer (clonedId, clonedNode, clonedSize);
+        Customer newCustomer = new Customer (clonedNode, clonedSize);
         
         return newCustomer;
     }

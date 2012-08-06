@@ -20,28 +20,23 @@ public class GeneList {
     
     private ArrayList<Gene> genes;      // The actual list: an Array of genes
     
-    private int nrVehicles;             // The number of vehicles in this list
-    private int nrNodes;                // The number of nodes (not vehicles) in this list
-    
-    private int indexFirstVehicle;      // The index of the first vehicle on the array
+    private int nrVehicles;             // The number of Vehicles in this list
+    private int nrCustomers;            // The number of Customers in this list
     
     
     // Constructor
-    // Creates a list of the possible genes. First the nodes (the customers) and then the vehicles
-    public GeneList(ArrayList<Customer> nodes, ArrayList<Vehicle> vehicles){
+    // Creates a list of the possible genes. Customers and vehicles
+    public GeneList(ArrayList<Customer> customers, ArrayList<Vehicle> vehicles){
         // Create an array of all the possible genes (vehicles and customers)
-        genes = new ArrayList<Gene>(nodes.size() + vehicles.size());
+        genes = new ArrayList<Gene>(customers.size() + vehicles.size());
         
-        // Add the nodes
-        genes.addAll(nodes);
-        
-        // The index of the first vehicle is the size of the genes
-        this.indexFirstVehicle=genes.size();
+        // Add the customers
+        genes.addAll(customers);
         
         // Add the vehicles
         genes.addAll(vehicles);
         
-        this.nrNodes=nodes.size();
+        this.nrCustomers=customers.size();
         this.nrVehicles=vehicles.size();
     }
 
@@ -50,22 +45,14 @@ public class GeneList {
     /* Getters and Setters */
     /* ------------------- */
     
-    public ArrayList<Gene> getGenes() {
-        return genes;
-    }
-    
     public ArrayList<Gene> getClonedGenes() {
         return (ArrayList<Gene>)genes.clone();
     }
-
-    public int getIndexFirstVehicle() {
-        return indexFirstVehicle;
-    }
-
+    
     public int getNrNodes() {
-        return nrNodes;
+        return nrCustomers;
     }
-
+    
     public int getNrVehicles() {
         return nrVehicles;
     }

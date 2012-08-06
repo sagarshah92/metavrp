@@ -8,6 +8,7 @@ import org.metavrp.algorithm.GA.support.Randomizer;
 import org.metavrp.algorithm.GA.phenotype.Tours;
 import org.metavrp.problem.CostMatrix;
 import org.metavrp.algorithm.GA.phenotype.CVRPTours;
+import org.metavrp.algorithm.GeneticAlgorithm;
 
 /**
  * 
@@ -16,18 +17,14 @@ import org.metavrp.algorithm.GA.phenotype.CVRPTours;
  */
 public class Chromosome implements Cloneable, Comparable<Chromosome>{
 
-    private int nrVehicles;                     // The number of vehicles in the chromosome
-    private int nrNodes;                        // The number of nodes not vehicles
-    private int nrDepots;   // TODO: Support multi-depots
-    
     private CostMatrix costMatrix;              // Bi-dimentional array with the distances between any two nodes
 
     private Gene[] genes;                       // The actual chromosome: an Array of genes
     
-    private OperatorsAndParameters operators;   // The chosen GA's operators and parameters
+    private GeneticAlgorithm geneticAlgorithm;                // The GA related stuff
 
     private float fitness;                      // Chromosome's fitness value (Corresponds to the total cost)
-    private boolean isFitnessOutdated = false;  // True if we need to reevaluate the fitness of this chromosome
+    private boolean isFitnessOutdated = true;  // True if we need to reevaluate the fitness of this chromosome
     private int nrFitnessEvaluations = 0;       // The number of fitness evaluations
 
     private float[] vehiclesCosts;              // Costs (fitness values) of the vehicles
@@ -35,25 +32,17 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
     
     // Constructor.
     // Creates a chromosome from a cost matrix. Genes are randomly generated.
-    public Chromosome(GeneList geneList, CostMatrix dm, OperatorsAndParameters operators) {
-        this.operators = operators;
-        this.nrNodes = geneList.getNrNodes();
-        if (this.nrNodes < 3){
-            throw new AssertionError("[Error] This Library only works with more than two nodes.");
-        }
-        this.nrVehicles= geneList.getNrVehicles();
+    public Chromosome(CostMatrix dm, GeneticAlgorithm ga) {
         this.costMatrix = dm;
-        this.genes = generateRandomChromosome(geneList);
+        this.geneticAlgorithm = ga;
+        this.genes = generateRandomChromosome(ga);
         verifyGenes();
-        this.isFitnessOutdated=true;
     }
 
     // Constructor.
     // Creates a chromosome from all the given data
-    public Chromosome(Gene[] genes, CostMatrix costMatrix, int nrVehicles, int nrNodes,  float fitness, float[] vehiclesFitness, OperatorsAndParameters operators) {
-        this.operators = operators;
-        this.nrVehicles = nrVehicles;
-        this.nrNodes = nrNodes;
+    public Chromosome(Gene[] genes, CostMatrix costMatrix, float fitness, float[] vehiclesFitness, GeneticAlgorithm ga) {
+        this.geneticAlgorithm = ga;
         this.costMatrix = costMatrix;
         this.genes = genes;
         this.fitness = fitness;
@@ -61,20 +50,12 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
     }
     
     // Constructor. 
-    // Creates a chromosome from an array of genes with the vehicles already there.
-    // All the other data (nrVehicles, nrNodes, fitness, vehiclesFitness) is measured,
-    // which creates an unnecessary overhead.
-    public Chromosome(Gene[] genes, CostMatrix dm, OperatorsAndParameters operators) {
-        this.operators = operators;
+    // Creates a chromosome from an array of genes.
+    public Chromosome(Gene[] genes, CostMatrix dm, GeneticAlgorithm ga) {
+        this.geneticAlgorithm = ga;
         this.costMatrix = dm;
         this.genes = genes;
-        this.nrVehicles = countVehicles();
-        this.nrNodes = genes.length - this.nrVehicles;
-        if (this.nrNodes < 3){
-            throw new AssertionError("[Error] This Library only works with more than two nodes.");
-        }
         verifyGenes();
-        this.isFitnessOutdated=true;
     }
     
     /*
@@ -85,7 +66,7 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
      */
     public final void verifyGenes(){
         ArrayList<Gene> genesList = new ArrayList<Gene>(Arrays.asList(genes));
-        for (Gene gene : genes){
+        for (Gene gene : geneticAlgorithm.getGenes()){
             if (!genesList.contains(gene)){
                 throw new AssertionError("There's a gene missing!");
             }
@@ -94,19 +75,23 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
         if (!genesList.isEmpty()){
             throw new AssertionError("There are duplicated genes!");
         }
-        if ((costMatrix.getSize()+nrVehicles-1)!=genes.length)
+        // TODO: Remove this last part as it is redundant?
+        int a = costMatrix.getSize();
+        int b = geneticAlgorithm.getNrVehicles();
+        int c = geneticAlgorithm.getNrDepots();
+        if ((costMatrix.getSize() + geneticAlgorithm.getNrVehicles() - geneticAlgorithm.getNrDepots()) != genes.length)
             throw new AssertionError("Some genes are missing in the chromosome!");
     }
     
     //****************************
     // Generate a random chomosome
     //****************************
-    private Gene[] generateRandomChromosome(GeneList geneList) {
+    private Gene[] generateRandomChromosome(GeneticAlgorithm ga) {
         // Create a temporary array of the cloned List of Genes. 
         // Cloned because we want to make changes without destroying the original list.
-        ArrayList<Gene> temp_chr = geneList.getClonedGenes();
+        ArrayList<Gene> temp_chr = ga.getClonedGenes();
         
-        int size = geneList.getSize();  // Get the size of the list
+        int size = ga.getNrGenes();  // Get the size of the list
         
         // Now scramble those genes (with the vehicles)
         ArrayList<Gene> random_chr = new ArrayList(size);   // Array to store the newly created chromosome
@@ -122,7 +107,8 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
     
     
     // Counts the number of vehicles present in the genes
-    private int countVehicles(){
+    // TODO: Remove this?
+    public int countVehicles(){
         int count=0;
         for (int i=0;i<this.genes.length;i++){
             if (this.genes[i].getIsVehicle()){
@@ -140,7 +126,7 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
     // Measure the fitness of this chromosome. The cost associated with it.
     private float measureFitness(){
         // TODO: The second parameter of CVRP.measureCost needs to be automated
-        float cvrpCost = CVRP.measureCost(this, operators.getInnerDepotPenalty());
+        float cvrpCost = CVRP.measureCost(this, geneticAlgorithm.getOperatorsAndParameters().getInnerDepotPenalty());
 
 //        float simplevrpCost = SimpleVRP.measureCost(this);
 //   
@@ -328,10 +314,8 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
     public Object clone() throws CloneNotSupportedException {
 
         Gene[] newGenes = new Gene[genes.length];
-        for (int i=0; i<genes.length;i++){
-            newGenes[i]=genes[i];
-        }
-        Chromosome newChromosome = new Chromosome(newGenes, costMatrix, nrVehicles, nrNodes,  fitness, vehiclesCosts, operators);
+        System.arraycopy(genes, 0, newGenes, 0, genes.length);
+        Chromosome newChromosome = new Chromosome(newGenes, costMatrix, fitness, vehiclesCosts, geneticAlgorithm);
         
         return newChromosome;
     }
@@ -409,11 +393,15 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
     }
 
     public int getNrVehicles() {
-        return nrVehicles;
+        return geneticAlgorithm.getNrVehicles();
     }
 
-    public int getNrNodes() {
-        return nrNodes;
+    public int getNrCustomers() {
+        return geneticAlgorithm.getNrCustomers();
+    }
+    
+    public int getNrDepots() {
+        return geneticAlgorithm.getNrDepots();
     }
     
     public float[] getVehiclesFitness() {
@@ -434,7 +422,11 @@ public class Chromosome implements Cloneable, Comparable<Chromosome>{
     }
 
     public OperatorsAndParameters getOperators() {
-        return operators;
+        return geneticAlgorithm.getOperatorsAndParameters();
+    }
+
+    public GeneticAlgorithm getGeneticAlgorithm() {
+        return geneticAlgorithm;
     }
 
 }

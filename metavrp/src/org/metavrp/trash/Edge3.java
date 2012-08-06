@@ -72,8 +72,8 @@ public class Edge3 {
         }
 
         Chromosome[] childs = new Chromosome[2];
-        childs[0] = new Chromosome(child1, parents[0].getCostMatrix(), parents[0].getOperators());
-        childs[1] = new Chromosome(child2, parents[0].getCostMatrix(), parents[0].getOperators());
+        childs[0] = new Chromosome(child1, parents[0].getCostMatrix(), parents[0].getGeneticAlgorithm());
+        childs[1] = new Chromosome(child2, parents[0].getCostMatrix(), parents[0].getGeneticAlgorithm());
        
         // Verify if the genes are correctly created
         childs[0].verifyGenes();
