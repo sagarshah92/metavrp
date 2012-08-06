@@ -16,6 +16,7 @@ import org.metavrp.algorithm.GA.operators.mutation.SwapNextMutation;
 import org.metavrp.algorithm.GA.phenotype.Tours;
 import org.metavrp.problem.CostMatrix;
 import org.metavrp.algorithm.GA.phenotype.CVRPTours;
+import org.metavrp.algorithm.GeneticAlgorithm;
 
 /**
  *
@@ -42,7 +43,7 @@ public class VRPGARun implements Runnable{
     private Population pop;             // Current population
     private static Population firstPop; // The first population, the one that was created randomly
     
-    private GeneList geneList;          // Object with the genes (vehicles and customers)
+    private GeneticAlgorithm geneticAlgorithm;          // Object with the genes (vehicles and customers)
     private CostMatrix costMatrix;      // Object with the costs between nodes
     
     private int generation=0;           // The current generation's number
@@ -56,10 +57,6 @@ public class VRPGARun implements Runnable{
     
     private int stopValue;              // The number of unimproved generations at wich this run will stop
     
-    // -----------------------
-    // GA implementation's specific operators and parameters
-    // -----------------------
-    private OperatorsAndParameters operators;
     // Population
     private int popSize;                // Size of the population
     // Selection
@@ -85,10 +82,10 @@ public class VRPGARun implements Runnable{
      * Initializes the parameters.
      */
     // TODO: Substitute statsFileName, run, stopValue by some output definition POJO
-    public VRPGARun(OperatorsAndParameters operators, GeneList geneList, CostMatrix costMatrix, String statsFileName, int run, int stopValue){
+    public VRPGARun(GeneticAlgorithm geneticAlgorithm, CostMatrix costMatrix, String statsFileName, int run, int stopValue){
         this.run=run;
         this.statsFileName=statsFileName;
-        this.operators = operators;
+        OperatorsAndParameters operators = geneticAlgorithm.getOperatorsAndParameters();
         // Population
         this.popSize = operators.getPopulationSize();
         // Selection
@@ -123,7 +120,7 @@ public class VRPGARun implements Runnable{
         this.elitism = operators.getReplacementElitism();
                 
         // Problem specific
-        this.geneList = geneList;
+        this.geneticAlgorithm = geneticAlgorithm;
         this.costMatrix = costMatrix;
         
         this.stopValue = stopValue; 
@@ -139,7 +136,7 @@ public class VRPGARun implements Runnable{
         long start = System.currentTimeMillis();
         
         // Randomly create the initial Population
-        pop = new Population(popSize, geneList, costMatrix, operators);
+        pop = new Population(popSize, costMatrix, geneticAlgorithm);
         
         // Acumulate the number of fitness evaluations
         acumulatedNrFitnessEvaluations += pop.getNrFitnessEvaluations();   
@@ -270,7 +267,7 @@ public class VRPGARun implements Runnable{
 
                 // After Selection, Crossover, Mutation in all the chromosomes of the population,
                 // lets do the replacement
-                newPop = Replacement.populationReplacement(matingPool, pop, elitism, geneList, costMatrix);
+                newPop = Replacement.populationReplacement(matingPool, pop, elitism, costMatrix);
                 
                 // If the best element of the population is the best element of all the run, keep it.
                 keepBestChromosome(newPop, matingPool, generation);

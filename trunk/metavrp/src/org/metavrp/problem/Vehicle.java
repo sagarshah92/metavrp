@@ -4,7 +4,7 @@ package org.metavrp.problem;
 import org.metavrp.algorithm.GA.Gene;
 
 /**
- * Represents a simple vehicle
+ * Represents a vehicle
  * Implements the interface Gene
  * 
  * @author David Pinheiro
@@ -14,12 +14,6 @@ import org.metavrp.algorithm.GA.Gene;
 
 public class Vehicle implements Gene, Cloneable {
 
-
-   // The ID of the Vehicle. 
-   // Vehicles ID's are negative, compared to the usual customers, which are positive or zero.
-   // It has to be a unique number for each gene (Customer and Vehicle).
-   private int id;
-    
    // Node number.
    // In case of a vehicle (this case), corresponds to its depot.
    // Warning! This node should have a direct mapping to the corresponding index of the cost matrix!
@@ -29,15 +23,13 @@ public class Vehicle implements Gene, Cloneable {
    private float capacity;
    
    // Constructs a vehicle with infinite capacity. 
-    public Vehicle (int id, int depot){
-        this.id=id;
+    public Vehicle (int depot){
         this.node=depot;
         this.capacity=Float.MAX_VALUE;
     }
     
     // Constructs a gene with capacity
-    public Vehicle (int id, int depot, float capacity){
-        this.id=id;
+    public Vehicle (int depot, float capacity){
         this.node=depot;
         this.capacity=capacity;
     }
@@ -48,7 +40,7 @@ public class Vehicle implements Gene, Cloneable {
     
     @Override
     public int getId() {
-        return id;
+        return Object.class.hashCode();
     }
     
     @Override
@@ -64,11 +56,23 @@ public class Vehicle implements Gene, Cloneable {
     public boolean getIsVehicle(){
         return true;
     }
+    
+    @Override
+    public boolean getIsDepot(){
+        return false;
+    }
+    
+    @Override
+    public boolean getIsCustomer(){
+        return false;
+    }
+    
 
     public float getCapacity(){
         return this.capacity;
     }
     
+    @Override
     public float getSize(){
         return getCapacity();
     }
@@ -87,18 +91,17 @@ public class Vehicle implements Gene, Cloneable {
     }
     
     // Clone this Vehicle
-// TODO: update this if you add more variables to this class.    
+    // TODO: update this if you add more variables to this class.    
     @Override
     public Vehicle clone(){
-        int clonedId = this.id;
         int clonedNode = this.node;
         float clonedCapacity = this.capacity;
         
-        Vehicle newVehicle = new Vehicle(clonedId, clonedNode, clonedCapacity);
+        Vehicle newVehicle = new Vehicle(clonedNode, clonedCapacity);
 
 // TODO: delete this        
-int hashOriginal = this.hashCode();
-int hashClone = newVehicle.hashCode();
+// int hashOriginal = this.hashCode();
+// int hashClone = newVehicle.hashCode();
         
         return newVehicle;
     }
