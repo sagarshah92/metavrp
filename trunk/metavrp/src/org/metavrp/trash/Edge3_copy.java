@@ -1,10 +1,11 @@
 package org.metavrp.trash;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import org.metavrp.algorithm.GA.Chromosome;
 import org.metavrp.algorithm.GA.Gene;
 import org.metavrp.algorithm.GA.support.Randomizer;
-
-import java.util.*;
 /******************************************
  * Edge Crossover, version 3 by D. Whitley
  * ****************************************

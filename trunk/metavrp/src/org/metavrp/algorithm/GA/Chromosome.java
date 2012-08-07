@@ -5,10 +5,8 @@ import java.util.Arrays;
 import org.metavrp.algorithm.GA.fitnessFunctions.CVRP;
 import org.metavrp.algorithm.GA.operators.OperatorsAndParameters;
 import org.metavrp.algorithm.GA.support.Randomizer;
-import org.metavrp.algorithm.GA.phenotype.Tours;
-import org.metavrp.problem.CostMatrix;
-import org.metavrp.algorithm.GA.phenotype.CVRPTours;
 import org.metavrp.algorithm.GeneticAlgorithm;
+import org.metavrp.problem.CostMatrix;
 
 /**
  * 

@@ -3,11 +3,12 @@
  */
 package org.metavrp.problem;
 
-import org.metavrp.algorithm.GA.support.Randomizer;
 import java.awt.geom.Point2D;
-
-import java.io.*;
-import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import org.metavrp.algorithm.GA.support.Randomizer;
 
 /**
  *

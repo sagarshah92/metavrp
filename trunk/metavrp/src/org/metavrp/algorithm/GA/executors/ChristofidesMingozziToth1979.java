@@ -4,11 +4,13 @@ package org.metavrp.algorithm.GA.executors;
 import java.awt.geom.Point2D;
 import java.io.*;
 import java.util.ArrayList;
-import org.metavrp.algorithm.GA.GeneList;
+import org.metavrp.Problem;
 import org.metavrp.algorithm.GA.VRPGARun;
 import org.metavrp.algorithm.GA.operators.OperatorsAndParameters;
+import org.metavrp.algorithm.GeneticAlgorithm;
 import org.metavrp.problem.CostMatrix;
 import org.metavrp.problem.Customer;
+import org.metavrp.problem.Depot;
 import org.metavrp.problem.Vehicle;
 
 /**
@@ -30,7 +32,8 @@ public class ChristofidesMingozziToth1979 implements Runnable{
     
     private int nrNodes;                // The number of nodes (nrCustomers + nrVehicles)
     
-    private GeneList geneList;          // Object with the genes (vehicles and customers)
+    private Problem problem;            // Definition of the problem
+    private GeneticAlgorithm ga;        // Genetic Algorithm's options
     private CostMatrix costMatrix;      // Object with the costs between nodes
     
     File instanceFile = null;           // The file with the instance
@@ -431,10 +434,12 @@ System.out.println("Run nº "+nrRun);
         
         // Create the Gene List
         customerDemand = getCustomerDemand(instanceFileName, nrCustomers);
-        geneList = generateVRPGeneList(nrVehicles, vehicleCapacity, nrCustomers, customerDemand);
+        problem = generateVRPProblem(costMatrix, nrVehicles, vehicleCapacity, nrCustomers, customerDemand);
+        
+        ga = new GeneticAlgorithm(operators, problem);
         
         // The runner
-        VRPGARun run = new VRPGARun(operators, geneList, costMatrix, statsFileName, nrRun, maxNrGenerationsWtImprovement);
+        VRPGARun run = new VRPGARun(ga, costMatrix, statsFileName, nrRun, maxNrGenerationsWtImprovement);
         
         // What's the parameter to test?
         run.setParameterToTest(parameterToTest);
@@ -547,27 +552,28 @@ System.out.println("Run nº "+nrRun);
      * Given some number of vehicles and nodes, the vehicle's capacity and a customer's
      * demand matrix, creates the corresponding list of genes.
      */
-    public static GeneList generateVRPGeneList(int nrVehicles, int vehicleCapacity, int nrCustomers, float[] customerDemand){
+    public static Problem generateVRPProblem(CostMatrix costMatrix,int nrVehicles, int vehicleCapacity, int nrCustomers, float[] customerDemand){
         
         // Generate the customers array
         ArrayList<Customer> customers = new ArrayList<Customer>(nrCustomers);
-        
         // Add the customers
         for (int i=1;i<=nrCustomers;i++){
-            customers.add(new Customer(i, i, customerDemand[i]));
+            customers.add(new Customer(i, customerDemand[i]));
         }
+        
+        // Add the depot
+        ArrayList<Depot> depots = new ArrayList<Depot>();
+        depots.add(new Depot(0));
         
         // Generate the vehicles array
         ArrayList<Vehicle> vehicles = new ArrayList<Vehicle>(nrVehicles);
-        
         // Add the vehicles
         // All of them start from the first node (node 0)
         for (int i=0;i<nrVehicles;i++){
-            vehicles.add(new Vehicle(-1-i, 0, vehicleCapacity));
+            vehicles.add(new Vehicle(0, vehicleCapacity));
         }
 
-        return new GeneList(customers, vehicles);        
-
+        return new Problem(costMatrix, customers, vehicles, depots);
     }
 
     public void setNrCustomers(int nrCustomers) {

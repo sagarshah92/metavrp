@@ -1,9 +1,9 @@
 
 package org.metavrp.algorithm.GA;
 
+import java.util.ArrayList;
 import org.metavrp.problem.Customer;
 import org.metavrp.problem.Vehicle;
-import java.util.ArrayList;
 
 /**
  * This class has all the genes that are needed. 

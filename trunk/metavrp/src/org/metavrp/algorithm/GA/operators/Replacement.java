@@ -1,10 +1,9 @@
 package org.metavrp.algorithm.GA.operators;
 
+import java.util.Arrays;
 import org.metavrp.algorithm.GA.Chromosome;
 import org.metavrp.algorithm.GA.Population;
 import org.metavrp.problem.CostMatrix;
-import org.metavrp.algorithm.GA.GeneList;
-import java.util.Arrays;
 
 /**
  *

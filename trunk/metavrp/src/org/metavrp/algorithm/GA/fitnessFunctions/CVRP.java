@@ -3,7 +3,6 @@ package org.metavrp.algorithm.GA.fitnessFunctions;
 
 import org.metavrp.algorithm.GA.Chromosome;
 import org.metavrp.algorithm.GA.Gene;
-import org.metavrp.algorithm.GA.phenotype.CVRPTours;
 
 /**
  *

@@ -4,12 +4,14 @@
  */
 package org.metavrp.trash;
 
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Set;
+import java.util.Vector;
 import org.metavrp.algorithm.GA.Chromosome;
 import org.metavrp.algorithm.GA.Gene;
 import org.metavrp.algorithm.GA.support.Randomizer;
 import org.metavrp.problem.CostMatrix;
-
-import java.util.*;
 /**
  *
  * @author David Pinheiro
