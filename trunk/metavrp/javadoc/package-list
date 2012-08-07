@@ -1,0 +1,13 @@
+org.metavrp
+org.metavrp.algorithm
+org.metavrp.algorithm.GA
+org.metavrp.algorithm.GA.executors
+org.metavrp.algorithm.GA.fitnessFunctions
+org.metavrp.algorithm.GA.operators
+org.metavrp.algorithm.GA.operators.crossover
+org.metavrp.algorithm.GA.operators.mutation
+org.metavrp.algorithm.GA.phenotype
+org.metavrp.algorithm.GA.support
+org.metavrp.problem
+org.metavrp.solution
+org.metavrp.trash
