@@ -1,8 +1,8 @@
 
 package org.metavrp.algorithm.GA;
 
-import java.util.*;
-import org.metavrp.algorithm.GA.operators.OperatorsAndParameters;
+import java.util.Arrays;
+import java.util.Comparator;
 import org.metavrp.algorithm.GeneticAlgorithm;
 import org.metavrp.problem.CostMatrix;
 

@@ -1,9 +1,9 @@
 package org.metavrp.algorithm.GA.operators;
 
+import java.util.Arrays;
 import org.metavrp.algorithm.GA.Chromosome;
 import org.metavrp.algorithm.GA.Population;
 import org.metavrp.algorithm.GA.support.Randomizer;
-import java.util.Arrays;
 
 /**********************
  * Selection Operators

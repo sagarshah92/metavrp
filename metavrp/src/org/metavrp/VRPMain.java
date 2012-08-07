@@ -1,14 +1,8 @@
 
 package org.metavrp;
 
-import org.metavrp.algorithm.GA.VRPGARun;
-import org.metavrp.algorithm.GA.GeneList;
 import java.io.File;
-import java.util.ArrayList;
-
-import org.metavrp.algorithm.GA.executors.ChristofidesEilon1971;
-import org.metavrp.algorithm.GA.executors.ChristofidesMingozziToth1979;
-import org.metavrp.algorithm.GA.executors.GoldenWasilKellyChao1998;
+import org.metavrp.algorithm.GA.VRPGARun;
 import org.metavrp.algorithm.GA.operators.OperatorsAndParameters;
 import org.metavrp.algorithm.GeneticAlgorithm;
 import org.metavrp.problem.CostMatrix;

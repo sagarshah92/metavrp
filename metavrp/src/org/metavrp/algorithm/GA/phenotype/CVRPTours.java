@@ -4,10 +4,9 @@ package org.metavrp.algorithm.GA.phenotype;
 import java.util.ArrayList;
 import org.metavrp.algorithm.GA.Chromosome;
 import org.metavrp.algorithm.GA.Gene;
-import org.metavrp.algorithm.GA.GeneList;
+import org.metavrp.algorithm.GA.phenotype.Tours.Tour;
 import org.metavrp.problem.Customer;
 import org.metavrp.problem.Vehicle;
-import org.metavrp.algorithm.GA.phenotype.Tours.Tour;
 
 /**
  * Goal: Grab a genotype and create a phenotype, for the CVRP. 

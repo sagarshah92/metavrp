@@ -5,9 +5,9 @@ import java.awt.geom.Point2D;
 import java.io.*;
 import java.util.ArrayList;
 import org.metavrp.Problem;
-import org.metavrp.algorithm.GA.GeneList;
 import org.metavrp.algorithm.GA.VRPGARun;
 import org.metavrp.algorithm.GA.operators.OperatorsAndParameters;
+import org.metavrp.algorithm.GeneticAlgorithm;
 import org.metavrp.problem.CostMatrix;
 import org.metavrp.problem.Customer;
 import org.metavrp.problem.Depot;
@@ -32,7 +32,8 @@ public class ChristofidesEilon1971 implements Runnable{
     
     private int nrNodes;                // The number of nodes (nrCustomers + nrVehicles)
     
-    private Problem problem;          // Object with the genes (vehicles and customers)
+    private Problem problem;            // Definition of the problem
+    private GeneticAlgorithm ga;        // Genetic Algorithm's options
     private CostMatrix costMatrix;      // Object with the costs between nodes
     
     File instanceFile = null;           // The file with the instance
@@ -435,8 +436,10 @@ System.out.println("Run nº "+nrRun);
         customerDemand = getCustomerDemand(instanceFileName, nrCustomers);
         problem = generateVRPProblem(costMatrix, nrVehicles, vehicleCapacity, nrCustomers, customerDemand);
         
+        ga = new GeneticAlgorithm(operators, problem);
+        
         // The runner
-        VRPGARun run = new VRPGARun(operators, geneList, costMatrix, statsFileName, nrRun, maxNrGenerationsWtImprovement);
+        VRPGARun run = new VRPGARun(ga, costMatrix, statsFileName, nrRun, maxNrGenerationsWtImprovement);
         
         // What's the parameter to test?
         run.setParameterToTest(parameterToTest);

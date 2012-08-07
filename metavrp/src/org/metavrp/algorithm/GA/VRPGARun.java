@@ -13,10 +13,9 @@ import org.metavrp.algorithm.GA.operators.mutation.InsertMutation;
 import org.metavrp.algorithm.GA.operators.mutation.InversionMutation;
 import org.metavrp.algorithm.GA.operators.mutation.SwapMutation;
 import org.metavrp.algorithm.GA.operators.mutation.SwapNextMutation;
-import org.metavrp.algorithm.GA.phenotype.Tours;
-import org.metavrp.problem.CostMatrix;
 import org.metavrp.algorithm.GA.phenotype.CVRPTours;
 import org.metavrp.algorithm.GeneticAlgorithm;
+import org.metavrp.problem.CostMatrix;
 
 /**
  *

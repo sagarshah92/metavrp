@@ -4,10 +4,10 @@
  */
 package org.metavrp.algorithm.GA.support;
 
-import org.metavrp.algorithm.GA.Chromosome;
-import java.util.Random;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Random;
+import org.metavrp.algorithm.GA.Chromosome;
 
 /**
  *
