@@ -20,7 +20,7 @@ import org.metavrp.algorithm.GA.support.Randomizer;
  * 
  * @author David Pinheiro
  */
-public class Edge3 {
+public class Edge3_3 {
   
     public static Chromosome[] Edge3 (Chromosome[] parents, float probability){
 //System.out.println("Edge3 crossover with probability: "+probability);
@@ -190,4 +190,4 @@ public class Edge3 {
         return entrySet[randomIndex];
     }
     
-}   // End of class definition
+}   
