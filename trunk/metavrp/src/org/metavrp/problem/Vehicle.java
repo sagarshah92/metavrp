@@ -14,22 +14,32 @@ import org.metavrp.algorithm.GA.Gene;
 
 public class Vehicle implements Gene, Cloneable {
 
-   // Node number.
-   // In case of a vehicle (this case), corresponds to its depot.
-   // Warning! This node should have a direct mapping to the corresponding index of the cost matrix!
-   private int node;
+    // Vehicle's Identification (Registration Number)
+    private String id;
+    
+    // Node number.
+    // In case of a vehicle (this case), corresponds to its depot.
+    // Warning! This node should have a direct mapping to the corresponding index of the cost matrix!
+    private int node;
    
-   // What's this vehicle's capacity?
-   private float capacity;
+    // What's this vehicle's capacity?
+    private float capacity;
    
-   // Constructs a vehicle with infinite capacity. 
+    // Constructs a vehicle with infinite capacity. 
     public Vehicle (int depot){
         this.node=depot;
         this.capacity=Float.MAX_VALUE;
     }
     
-    // Constructs a gene with capacity
+    // Constructs a vehicle with capacity
     public Vehicle (int depot, float capacity){
+        this.node=depot;
+        this.capacity=capacity;
+    }
+    
+    // Constructs a vehicle with id, depot and capacity
+    public Vehicle (String id, int depot, float capacity){
+        this.id=id;
         this.node=depot;
         this.capacity=capacity;
     }
@@ -39,8 +49,12 @@ public class Vehicle implements Gene, Cloneable {
     /* ------------------- */
     
     @Override
-    public int getId() {
-        return Object.class.hashCode();
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
     
     @Override
