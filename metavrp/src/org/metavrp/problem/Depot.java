@@ -11,13 +11,22 @@ import org.metavrp.algorithm.GA.Gene;
  */
 
 public class Depot implements Gene, Cloneable {
-   
-   // Node number
-   // Warning! This node should have a direct mapping to the corresponding index of the cost matrix!
-   private int node;
+    
+    // Identification of this depot. Can be a description.
+    private String id;
+    
+    // Node number
+    // Warning! This node should have a direct mapping to the corresponding index of the cost matrix!
+    private int node;
 
-   // Constructs a Depot
+    // Constructs a Depot
     public Depot (int node){
+        this.node=node;
+    }
+    
+    // Constructs a Depot with an identification string
+    public Depot (String id, int node){
+        this.id=id;
         this.node=node;
     }
 
@@ -26,8 +35,12 @@ public class Depot implements Gene, Cloneable {
     /* ------------------- */
     
     @Override
-    public int getId() {
-        return Object.class.hashCode();
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
     
     @Override

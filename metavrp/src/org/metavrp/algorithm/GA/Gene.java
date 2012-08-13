@@ -12,10 +12,8 @@ public interface Gene {
     /* Getters and Setters */
     /* ------------------- */
 
-    // The ID of the gene. 
-    // If positive, is a normal node. If negative, is a vehicle.
-    // It has to be a unique number for each gene.
-    public int getId();
+    // The Identification of the gene. Can be a description.
+    public String getId();
 
     // Gene's node.
     // In case of a vehicle, corresponds to its initial node (depot).

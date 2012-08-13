@@ -15,14 +15,17 @@ import org.metavrp.algorithm.GA.Gene;
 
 public class Customer implements Gene, Cloneable {
 
-   // Node number
-   // Warning! This node should have a direct mapping to the corresponding index of the cost matrix!
-   private int node;
-   
-   // What's this customer's goods demand, that need to be transported? It's measure (size, volume, quantity, etc...)
-   private float demand;
+    // Identification of this customer. Can be a description.
+    private String id;
+    
+    // Node number
+    // Warning! This node should have a direct mapping to the corresponding index of the cost matrix!
+    private int node;
 
-   // Constructs a Customer with no demand. 
+    // What's this customer's goods demand, that need to be transported? It's measure (size, volume, quantity, etc...)
+    private float demand;
+
+    // Constructs a Customer with no demand. 
     public Customer (int node){
         this.node=node;
         this.demand=0;
@@ -33,14 +36,25 @@ public class Customer implements Gene, Cloneable {
         this.node=node;
         this.demand=demand;
     }
+    
+    // Constructs a Customer with a given demand and an identification string
+    public Customer (String id, int node, float demand){
+        this.id=id;
+        this.node=node;
+        this.demand=demand;
+    }
 
     /* ------------------- */
     /* Getters and Setters */
     /* ------------------- */
     
     @Override
-    public int getId() {
-        return Object.class.hashCode();
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
     
     @Override
