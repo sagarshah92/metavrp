@@ -74,7 +74,7 @@ public class Customer implements Gene, Cloneable {
     
     @Override
     public boolean getIsCustomer(){
-        return false;
+        return true;
     }
 
     public float getDemand() {
