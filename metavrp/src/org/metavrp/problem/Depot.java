@@ -55,7 +55,7 @@ public class Depot implements Gene, Cloneable {
     
     @Override
     public boolean getIsDepot(){
-        return false;
+        return true;
     }
     
     @Override
